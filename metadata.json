@@ -1,0 +1,6 @@
+{
+  "name": "Nexus Procurement Enterprise",
+  "description": "Enterprise Vendor & Procurement Management System featuring Vendor Lifecycle, RFQs, Purchase Orders, Warehousing, Invoicing, AI Risk & Spend Analysis, and Multi-Role Workflows.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
