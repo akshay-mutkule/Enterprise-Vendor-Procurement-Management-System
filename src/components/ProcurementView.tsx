@@ -38,13 +38,36 @@ export const ProcurementView: React.FC = () => {
   });
 
   const [quoteForm, setQuoteForm] = useState({
-    rfqId: '',
+    rfqId: rfqs[0]?.id || 'rfq-201',
     vendorId: 'v-101',
     vendorName: 'Apex Components Ltd',
     unitPrice: 39.50,
     deliveryDays: 5,
     terms: 'Net 30 days payment upon inspection.'
   });
+
+  const filteredRequisitions = requisitions.filter(pr => 
+    pr.reqNumber.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    pr.requestedBy.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    pr.purpose.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+  const filteredRFQs = rfqs.filter(r => 
+    r.rfqNumber.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    r.title.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+  const filteredQuotations = quotations.filter(q => {
+    const matchesSearch = q.quoteNumber.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      q.vendorName.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesRFQ = selectedRFQForQuote ? q.rfqId === selectedRFQForQuote : true;
+    return matchesSearch && matchesRFQ;
+  });
+
+  const filteredPOs = purchaseOrders.filter(p => 
+    p.poNumber.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    p.vendorName.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
   const handlePRSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -218,7 +241,7 @@ export const ProcurementView: React.FC = () => {
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100 dark:divide-slate-700/60">
-                {requisitions.map(pr => (
+                {filteredRequisitions.map(pr => (
                   <tr key={pr.id} className="hover:bg-slate-50 dark:hover:bg-slate-700/30">
                     <td className="p-3 font-mono font-bold text-indigo-600 dark:text-indigo-400">{pr.reqNumber}</td>
                     <td className="p-3">
@@ -259,10 +282,16 @@ export const ProcurementView: React.FC = () => {
                       {pr.status === 'APPROVED' && (
                         <button
                           onClick={() => {
+                            setRfqForm({
+                              title: `Sourcing for ${pr.reqNumber}: ${pr.items[0]?.productName || 'Components'}`,
+                              deadline: '2026-08-30',
+                              invitedVendors: ['v-101', 'v-102'],
+                              itemSpecs: `${pr.purpose} (${pr.items[0]?.quantity || 100} units requested)`
+                            });
                             setActiveSubTab('RFQ');
                             setShowRFQModal(true);
                           }}
-                          className="px-2.5 py-1 bg-indigo-600 text-white rounded text-[11px] font-semibold hover:bg-indigo-500"
+                          className="px-2.5 py-1 bg-indigo-600 text-white rounded text-[11px] font-semibold hover:bg-indigo-500 shadow"
                         >
                           Convert to RFQ →
                         </button>
@@ -279,7 +308,7 @@ export const ProcurementView: React.FC = () => {
       {/* Subtab 2: RFQ */}
       {activeSubTab === 'RFQ' && (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {rfqs.map(rfq => (
+          {filteredRFQs.map(rfq => (
             <div key={rfq.id} className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 p-5 shadow-sm space-y-4">
               <div className="flex items-start justify-between">
                 <div>
@@ -306,11 +335,12 @@ export const ProcurementView: React.FC = () => {
                 <button
                   onClick={() => {
                     setSelectedRFQForQuote(rfq.id);
+                    setQuoteForm(prev => ({ ...prev, rfqId: rfq.id }));
                     setActiveSubTab('QUOTES');
                   }}
-                  className="px-3 py-1 bg-indigo-50 dark:bg-indigo-950 text-indigo-600 dark:text-indigo-400 font-bold rounded hover:bg-indigo-100"
+                  className="px-3 py-1 bg-indigo-50 dark:bg-indigo-950 text-indigo-600 dark:text-indigo-400 font-bold rounded hover:bg-indigo-100 shadow-sm"
                 >
-                  View Quotes Matrix →
+                  View Quotes Matrix ({quotations.filter(q => q.rfqId === rfq.id).length}) →
                 </button>
               </div>
             </div>
@@ -330,10 +360,18 @@ export const ProcurementView: React.FC = () => {
                 <p className="text-xs text-purple-200">Evaluate bids with Gemini AI recommendation score, delivery SLA, and total price breakdown.</p>
               </div>
             </div>
+            {selectedRFQForQuote && (
+              <button
+                onClick={() => setSelectedRFQForQuote('')}
+                className="px-3 py-1 bg-white/10 hover:bg-white/20 text-white text-xs rounded-lg font-semibold flex items-center gap-1 backdrop-blur-sm"
+              >
+                Showing RFQ Filter <X className="w-3.5 h-3.5 ml-1" />
+              </button>
+            )}
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {quotations.map(quote => (
+            {filteredQuotations.map(quote => (
               <div key={quote.id} className={`bg-white dark:bg-slate-800 rounded-xl border p-5 shadow-sm space-y-4 relative overflow-hidden ${quote.status === 'ACCEPTED' ? 'border-emerald-500 ring-2 ring-emerald-500/20' : 'border-slate-200 dark:border-slate-700'}`}>
                 
                 {quote.aiRecommendationScore && quote.aiRecommendationScore > 90 && (
@@ -413,7 +451,7 @@ export const ProcurementView: React.FC = () => {
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100 dark:divide-slate-700/60">
-                {purchaseOrders.map(po => (
+                {filteredPOs.map(po => (
                   <tr key={po.id} className="hover:bg-slate-50 dark:hover:bg-slate-700/30">
                     <td className="p-3 font-mono font-bold text-indigo-600 dark:text-indigo-400">{po.poNumber}</td>
                     <td className="p-3 font-semibold text-slate-800 dark:text-slate-200">{po.vendorName}</td>
@@ -422,12 +460,20 @@ export const ProcurementView: React.FC = () => {
                     <td className="p-3 font-extrabold text-slate-900 dark:text-white">{formatCurrency(po.totalAmount)}</td>
                     <td className="p-3">{getPOStatusBadge(po.status)}</td>
                     <td className="p-3 text-right space-x-2">
-                      {po.status === 'ISSUED' && (
+                      {po.status === 'APPROVED' && (
+                        <button
+                          onClick={() => updatePOStatus(po.id, 'ISSUED')}
+                          className="px-2.5 py-1 bg-blue-600 text-white rounded text-[11px] font-semibold hover:bg-blue-500 shadow-sm"
+                        >
+                          Issue PO
+                        </button>
+                      )}
+                      {(po.status === 'ISSUED' || po.status === 'APPROVED') && (
                         <button
                           onClick={() => updatePOStatus(po.id, 'DELIVERED')}
-                          className="px-2.5 py-1 bg-emerald-600 text-white rounded text-[11px] font-semibold hover:bg-emerald-500"
+                          className="px-2.5 py-1 bg-emerald-600 text-white rounded text-[11px] font-semibold hover:bg-emerald-500 shadow-sm"
                         >
-                          Mark Delivered
+                          Mark Delivered (+Stock)
                         </button>
                       )}
                       {po.status !== 'CANCELLED' && po.status !== 'DELIVERED' && (
@@ -558,6 +604,19 @@ export const ProcurementView: React.FC = () => {
           <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl max-w-md w-full p-6 shadow-2xl">
             <h3 className="text-base font-extrabold text-slate-900 dark:text-white mb-4">Submit Vendor Quotation</h3>
             <form onSubmit={handleQuoteSubmit} className="space-y-3 text-xs">
+              <div>
+                <label className="block text-slate-600 dark:text-slate-300 font-semibold mb-1">Target RFQ *</label>
+                <select
+                  value={quoteForm.rfqId || selectedRFQForQuote || rfqs[0]?.id || ''}
+                  onChange={e => setQuoteForm({ ...quoteForm, rfqId: e.target.value })}
+                  className="w-full px-3 py-2 rounded-lg bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-white font-semibold"
+                >
+                  {rfqs.map(r => (
+                    <option key={r.id} value={r.id}>{r.rfqNumber}: {r.title}</option>
+                  ))}
+                </select>
+              </div>
+
               <div>
                 <label className="block text-slate-600 dark:text-slate-300 font-semibold mb-1">Select Bidding Vendor</label>
                 <select

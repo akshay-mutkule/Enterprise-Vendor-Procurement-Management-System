@@ -8,12 +8,19 @@ import { useProcurement } from '../context/ProcurementContext';
 import { Vendor, VendorStatus } from '../types';
 
 export const VendorManagementView: React.FC = () => {
-  const { vendors, addVendor, updateVendorStatus, searchQuery } = useProcurement();
+  const { vendors, addVendor, updateVendorStatus, addVendorDocument, searchQuery } = useProcurement();
   const [selectedVendor, setSelectedVendor] = useState<Vendor | null>(vendors[0] || null);
   const [activeTab, setActiveTab] = useState<'DETAILS' | 'DOCS' | 'BANK_GST' | 'PERFORMANCE'>('DETAILS');
   const [showRegisterModal, setShowRegisterModal] = useState(false);
+  const [showDocModal, setShowDocModal] = useState(false);
   const [aiLoading, setAiLoading] = useState(false);
   const [aiResult, setAiResult] = useState<any>(null);
+
+  const [docForm, setDocForm] = useState({
+    name: '',
+    type: 'TAX_GST' as 'TAX_GST' | 'BANK_LETTER' | 'BUSINESS_LICENSE' | 'ISO_CERT' | 'OTHER',
+    url: '#'
+  });
 
   // Registration Form State
   const [formData, setFormData] = useState({
@@ -55,6 +62,14 @@ export const VendorManagementView: React.FC = () => {
       name: '', category: 'Electronics & Microchips', contactEmail: '',
       phone: '', address: '', gstin: '', bankName: '', bankAccount: '', ifscCode: '', notes: ''
     });
+  };
+
+  const handleDocSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!selectedVendor) return;
+    addVendorDocument(selectedVendor.id, docForm);
+    setShowDocModal(false);
+    setDocForm({ name: '', type: 'TAX_GST', url: '#' });
   };
 
   const handleRunAiRiskAnalysis = async (vendor: Vendor) => {
@@ -264,7 +279,10 @@ export const VendorManagementView: React.FC = () => {
                 <div className="space-y-4 text-xs">
                   <div className="flex items-center justify-between">
                     <h4 className="font-bold text-slate-800 dark:text-slate-200">Uploaded Compliance Documents</h4>
-                    <button className="px-3 py-1.5 bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-200 rounded-lg font-semibold flex items-center gap-1.5 hover:bg-slate-200">
+                    <button 
+                      onClick={() => setShowDocModal(true)}
+                      className="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg font-semibold flex items-center gap-1.5 shadow"
+                    >
                       <Upload className="w-3.5 h-3.5" /> Upload File
                     </button>
                   </div>
@@ -494,6 +512,60 @@ export const VendorManagementView: React.FC = () => {
                   className="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white font-semibold rounded-lg shadow-md"
                 >
                   Register Vendor
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Modal: Upload Compliance Document */}
+      {showDocModal && selectedVendor && (
+        <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl max-w-md w-full p-6 shadow-2xl">
+            <h3 className="text-base font-extrabold text-slate-900 dark:text-white mb-1">Upload Compliance Document</h3>
+            <p className="text-xs text-slate-500 mb-4">Vendor: {selectedVendor.name}</p>
+            <form onSubmit={handleDocSubmit} className="space-y-3 text-xs">
+              <div>
+                <label className="block text-slate-600 dark:text-slate-300 font-semibold mb-1">Document Name / Title *</label>
+                <input
+                  type="text"
+                  required
+                  value={docForm.name}
+                  onChange={e => setDocForm({ ...docForm, name: e.target.value })}
+                  placeholder="e.g. ISO_9001_Compliance_2026.pdf"
+                  className="w-full px-3 py-2 rounded-lg bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-white"
+                />
+              </div>
+
+              <div>
+                <label className="block text-slate-600 dark:text-slate-300 font-semibold mb-1">Document Category *</label>
+                <select
+                  value={docForm.type}
+                  onChange={e => setDocForm({ ...docForm, type: e.target.value as any })}
+                  className="w-full px-3 py-2 rounded-lg bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-white"
+                >
+                  <option value="TAX_GST">Tax & GST Certificate</option>
+                  <option value="BANK_LETTER">Bank Verification Letter</option>
+                  <option value="BUSINESS_LICENSE">Business Registration License</option>
+                  <option value="ISO_CERT">ISO Quality Certificate</option>
+                  <option value="OTHER">Other Compliance Record</option>
+                </select>
+              </div>
+
+              <div className="flex items-center justify-end gap-3 pt-3">
+                <button
+                  type="button"
+                  onClick={() => setShowDocModal(false)}
+                  className="px-4 py-2 bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-200 font-semibold rounded-lg hover:bg-slate-200"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white font-semibold rounded-lg shadow-md"
+                >
+                  Upload & Verify
                 </button>
               </div>
             </form>

@@ -2,7 +2,7 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 import { 
   UserRole, User, Vendor, VendorStatus, Product, Warehouse, 
   PurchaseRequisition, RFQ, Quotation, PurchaseOrder, 
-  Invoice, Payment, AuditLog, SystemNotification, POStatus, RequisitionStatus, InvoiceStatus 
+  Invoice, Payment, AuditLog, SystemNotification, POStatus, RequisitionStatus, InvoiceStatus, VendorDocument 
 } from '../types';
 import { 
   initialUsers, initialVendors, initialWarehouses, 
@@ -42,6 +42,7 @@ interface ProcurementContextType {
   addProduct: (product: Omit<Product, 'id' | 'barcode'>) => void;
   updateStock: (productId: string, quantityDelta: number, warehouseId: string) => void;
   addWarehouse: (wh: Omit<Warehouse, 'id' | 'code' | 'currentStockCount'>) => void;
+  addVendorDocument: (vendorId: string, doc: Omit<VendorDocument, 'id' | 'uploadDate' | 'verified'>) => void;
   uploadInvoice: (inv: Omit<Invoice, 'id' | 'invoiceNumber' | 'status' | 'aiFraudRisk'>) => void;
   verifyInvoice: (id: string, status: InvoiceStatus, note?: string) => void;
   processPayment: (pay: Omit<Payment, 'id' | 'paymentNumber' | 'paymentDate' | 'status'>) => void;
@@ -214,8 +215,32 @@ export const ProcurementProvider: React.FC<{ children: React.ReactNode }> = ({ c
   };
 
   const updatePOStatus = (id: string, status: POStatus) => {
+    const targetPO = purchaseOrders.find(p => p.id === id);
     setPurchaseOrders(prev => prev.map(p => p.id === id ? { ...p, status } : p));
     logActivity('UPDATE_PO_STATUS', 'PROCUREMENT', `Purchase Order ${id} status changed to ${status}`);
+
+    if (status === 'DELIVERED' && targetPO) {
+      // Automatically increment product stock for delivered PO items
+      targetPO.items.forEach(item => {
+        setProducts(prev => prev.map(prod => {
+          if (prod.id === item.productId || prod.name.toLowerCase() === item.productName.toLowerCase()) {
+            return { ...prod, stockQuantity: prod.stockQuantity + item.quantity };
+          }
+          return prod;
+        }));
+      });
+
+      const newNotification: SystemNotification = {
+        id: `notif-${Date.now()}`,
+        title: `Goods Received: ${targetPO.poNumber}`,
+        message: `Shipment from ${targetPO.vendorName} received at warehouse. Inventory quantities updated automatically.`,
+        timestamp: 'Just now',
+        type: 'SUCCESS',
+        read: false,
+        roleTarget: 'ALL'
+      };
+      setNotifications(prev => [newNotification, ...prev]);
+    }
   };
 
   const addProduct = (productData: Omit<Product, 'id' | 'barcode'>) => {
@@ -248,6 +273,17 @@ export const ProcurementProvider: React.FC<{ children: React.ReactNode }> = ({ c
     };
     setWarehouses(prev => [...prev, newWH]);
     logActivity('ADD_WAREHOUSE', 'INVENTORY', `Added new warehouse ${newWH.name}`);
+  };
+
+  const addVendorDocument = (vendorId: string, docData: Omit<VendorDocument, 'id' | 'uploadDate' | 'verified'>) => {
+    const newDoc: VendorDocument = {
+      ...docData,
+      id: `doc-${Date.now()}`,
+      uploadDate: new Date().toISOString().substring(0, 10),
+      verified: true
+    };
+    setVendors(prev => prev.map(v => v.id === vendorId ? { ...v, documents: [...v.documents, newDoc] } : v));
+    logActivity('UPLOAD_DOCUMENT', 'VENDOR', `Uploaded compliance document ${newDoc.name} for vendor ${vendorId}`);
   };
 
   const uploadInvoice = (invData: Omit<Invoice, 'id' | 'invoiceNumber' | 'status' | 'aiFraudRisk'>) => {
@@ -324,6 +360,7 @@ export const ProcurementProvider: React.FC<{ children: React.ReactNode }> = ({ c
       addProduct,
       updateStock,
       addWarehouse,
+      addVendorDocument,
       uploadInvoice,
       verifyInvoice,
       processPayment,

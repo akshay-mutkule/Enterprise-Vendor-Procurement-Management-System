@@ -31,6 +31,12 @@ export const InvoiceFinanceView: React.FC = () => {
     ref: 'TRX-ACH-2026-9901'
   });
 
+  const filteredInvoices = invoices.filter(inv => 
+    inv.invoiceNumber.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    inv.vendorName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    inv.poNumber.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
   const handleUploadSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     const po = purchaseOrders.find(p => p.id === uploadForm.poId);
@@ -119,7 +125,7 @@ export const InvoiceFinanceView: React.FC = () => {
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100 dark:divide-slate-700/60">
-                {invoices.map(inv => (
+                {filteredInvoices.map(inv => (
                   <tr 
                     key={inv.id}
                     onClick={() => setSelectedInvoice(inv)}
@@ -138,9 +144,21 @@ export const InvoiceFinanceView: React.FC = () => {
                       {inv.status === 'PENDING_VERIFICATION' && (
                         <button
                           onClick={(e) => { e.stopPropagation(); verifyInvoice(inv.id, 'APPROVED'); }}
-                          className="px-2.5 py-1 bg-emerald-600 text-white rounded text-[11px] font-semibold hover:bg-emerald-500"
+                          className="px-2.5 py-1 bg-emerald-600 text-white rounded text-[11px] font-semibold hover:bg-emerald-500 shadow-sm"
                         >
                           Verify Match
+                        </button>
+                      )}
+                      {inv.status === 'APPROVED' && (
+                        <button
+                          onClick={(e) => { 
+                            e.stopPropagation(); 
+                            setPaymentForm(prev => ({ ...prev, invoiceId: inv.id }));
+                            setShowPaymentModal(true); 
+                          }}
+                          className="px-2.5 py-1 bg-blue-600 text-white rounded text-[11px] font-semibold hover:bg-blue-500 shadow-sm"
+                        >
+                          Disburse Payment
                         </button>
                       )}
                     </td>
