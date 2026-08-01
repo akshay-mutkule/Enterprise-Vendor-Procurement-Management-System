@@ -10,7 +10,11 @@ import {
 import { useProcurement } from '../context/ProcurementContext';
 import { formatCurrency } from '../utils/exportUtils';
 
-export const DashboardView: React.FC = () => {
+interface DashboardViewProps {
+  onNavigate?: (tab: string) => void;
+}
+
+export const DashboardView: React.FC<DashboardViewProps> = ({ onNavigate }) => {
   const { vendors, products, purchaseOrders, invoices, currentRole, switchRole } = useProcurement();
 
   const totalProcurementSpend = purchaseOrders.reduce((sum, po) => sum + po.totalAmount, 0);
@@ -298,9 +302,12 @@ export const DashboardView: React.FC = () => {
           </div>
 
           <div className="pt-3 border-t border-slate-100 dark:border-slate-700">
-            <span className="text-[11px] text-indigo-600 dark:text-indigo-400 font-semibold cursor-pointer hover:underline flex items-center gap-1">
+            <button
+              onClick={() => onNavigate?.('vendors')}
+              className="text-[11px] text-indigo-600 dark:text-indigo-400 font-semibold hover:underline flex items-center gap-1"
+            >
               View all {vendors.length} vendors in Vendor Lifecycle →
-            </span>
+            </button>
           </div>
         </div>
 

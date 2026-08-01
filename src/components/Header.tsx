@@ -6,7 +6,12 @@ import {
 import { useProcurement } from '../context/ProcurementContext';
 import { UserRole } from '../types';
 
-export const Header: React.FC = () => {
+interface HeaderProps {
+  activeTab?: string;
+  setActiveTab?: (tab: any) => void;
+}
+
+export const Header: React.FC<HeaderProps> = ({ activeTab, setActiveTab }) => {
   const { 
     currentRole, currentUser, switchRole, theme, toggleTheme, 
     language, setLanguage, searchQuery, setSearchQuery,
@@ -189,6 +194,19 @@ export const Header: React.FC = () => {
                   ))
                 )}
               </div>
+              {setActiveTab && (
+                <div className="p-2 border-t border-slate-100 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/50 text-center">
+                  <button
+                    onClick={() => {
+                      setActiveTab('notifications');
+                      setShowNotifications(false);
+                    }}
+                    className="text-xs font-bold text-indigo-600 dark:text-indigo-400 hover:underline"
+                  >
+                    View Full Alerts & Email Center →
+                  </button>
+                </div>
+              )}
             </div>
           )}
         </div>

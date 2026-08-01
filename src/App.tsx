@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { ProcurementProvider } from './context/ProcurementContext';
 import { Header } from './components/Header';
-import { Sidebar } from './components/Sidebar';
+import { Sidebar, ActiveTab } from './components/Sidebar';
 import { DashboardView } from './components/DashboardView';
 import { VendorManagementView } from './components/VendorManagementView';
 import { ProcurementView } from './components/ProcurementView';
@@ -11,14 +11,15 @@ import { AiIntelligenceView } from './components/AiIntelligenceView';
 import { NotificationsView } from './components/NotificationsView';
 import { ReportsView } from './components/ReportsView';
 import { DeveloperHubView } from './components/DeveloperHubView';
+import { AuditLogView } from './components/AuditLogView';
 
 export default function App() {
-  const [activeTab, setActiveTab] = useState('dashboard');
+  const [activeTab, setActiveTab] = useState<ActiveTab>('dashboard');
 
   const renderActiveView = () => {
     switch (activeTab) {
       case 'dashboard':
-        return <DashboardView />;
+        return <DashboardView onNavigate={(tab) => setActiveTab(tab as ActiveTab)} />;
       case 'vendors':
         return <VendorManagementView />;
       case 'procurement':
@@ -27,16 +28,20 @@ export default function App() {
         return <InventoryView />;
       case 'finance':
         return <InvoiceFinanceView />;
-      case 'ai-analytics':
+      case 'ai':
+      case 'ai-analytics' as any:
         return <AiIntelligenceView />;
       case 'notifications':
         return <NotificationsView />;
       case 'reports':
         return <ReportsView />;
-      case 'dev-hub':
+      case 'developer':
+      case 'dev-hub' as any:
         return <DeveloperHubView />;
+      case 'audit':
+        return <AuditLogView />;
       default:
-        return <DashboardView />;
+        return <DashboardView onNavigate={(tab) => setActiveTab(tab as ActiveTab)} />;
     }
   };
 
