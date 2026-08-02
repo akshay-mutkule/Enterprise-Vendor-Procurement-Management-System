@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { 
   Search, Bell, Moon, Sun, Globe, Shield, User as UserIcon, 
-  ChevronDown, CheckCircle, AlertTriangle, Info, X 
+  ChevronDown, CheckCircle, AlertTriangle, Info, X, Menu, LayoutDashboard,
+  Users, ShoppingBag, Package, FileText, Sparkles, BarChart3, Terminal, ShieldAlert
 } from 'lucide-react';
 import { useProcurement } from '../context/ProcurementContext';
 import { UserRole } from '../types';
@@ -9,9 +10,15 @@ import { UserRole } from '../types';
 interface HeaderProps {
   activeTab?: string;
   setActiveTab?: (tab: any) => void;
+  collapsed?: boolean;
+  setCollapsed?: (collapsed: boolean) => void;
+  mobileMenuOpen?: boolean;
+  setMobileMenuOpen?: (open: boolean) => void;
 }
 
-export const Header: React.FC<HeaderProps> = ({ activeTab, setActiveTab }) => {
+export const Header: React.FC<HeaderProps> = ({ 
+  activeTab, setActiveTab, collapsed, setCollapsed, mobileMenuOpen, setMobileMenuOpen 
+}) => {
   const { 
     currentRole, currentUser, switchRole, theme, toggleTheme, 
     language, setLanguage, searchQuery, setSearchQuery,
@@ -21,6 +28,7 @@ export const Header: React.FC<HeaderProps> = ({ activeTab, setActiveTab }) => {
   const [showRoleDropdown, setShowRoleDropdown] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
   const [showLangDropdown, setShowLangDropdown] = useState(false);
+  const [showNavMenu, setShowNavMenu] = useState(false);
 
   const roles: { role: UserRole; label: string; color: string }[] = [
     { role: 'SUPER_ADMIN', label: 'Super Admin', color: 'bg-indigo-600 text-white' },
@@ -31,26 +39,88 @@ export const Header: React.FC<HeaderProps> = ({ activeTab, setActiveTab }) => {
     { role: 'EMPLOYEE', label: 'Employee', color: 'bg-slate-700 text-white' },
   ];
 
+  const quickNavTabs = [
+    { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
+    { id: 'vendors', label: 'Vendors', icon: Users },
+    { id: 'procurement', label: 'Procurement', icon: ShoppingBag },
+    { id: 'inventory', label: 'Inventory', icon: Package },
+    { id: 'finance', label: 'Finance', icon: FileText },
+    { id: 'ai', label: 'AI Risk', icon: Sparkles },
+    { id: 'reports', label: 'Reports', icon: BarChart3 },
+    { id: 'notifications', label: 'Alerts', icon: Bell },
+    { id: 'developer', label: 'Dev Hub', icon: Terminal },
+    { id: 'audit', label: 'Audit Log', icon: ShieldAlert },
+  ];
+
   const unreadCount = notifications.filter(n => !n.read).length;
 
   return (
-    <header className="sticky top-0 z-30 h-16 bg-white/90 dark:bg-slate-900/90 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 px-4 md:px-6 flex items-center justify-between transition-colors">
+    <header className="sticky top-0 z-30 h-16 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 px-3 md:px-6 flex items-center justify-between transition-colors">
       
-      {/* Global Search Bar */}
-      <div className="flex items-center gap-3 flex-1 max-w-md">
+      {/* Mobile Menu & Search Bar */}
+      <div className="flex items-center gap-2 flex-1 max-w-lg">
+        {/* Sidebar Toggle for Desktop/Mobile */}
+        {setCollapsed && (
+          <button
+            onClick={() => setCollapsed(!collapsed)}
+            className="p-2 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors shrink-0"
+            title="Toggle Navigation Menu"
+          >
+            <Menu className="w-5 h-5" />
+          </button>
+        )}
+
+        {/* Global Nav Menu Toggle button for quick access */}
+        {setActiveTab && (
+          <div className="relative">
+            <button
+              onClick={() => setShowNavMenu(!showNavMenu)}
+              className="px-2.5 py-1.5 bg-indigo-50 dark:bg-indigo-950/60 hover:bg-indigo-100 dark:hover:bg-indigo-900/80 text-indigo-600 dark:text-indigo-400 font-bold text-xs rounded-lg flex items-center gap-1.5 transition-all shadow-sm shrink-0"
+            >
+              <LayoutDashboard className="w-4 h-4" />
+              <span className="hidden sm:inline">Nav Menu</span>
+              <ChevronDown className="w-3 h-3" />
+            </button>
+
+            {showNavMenu && (
+              <div className="absolute left-0 mt-2 w-64 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl shadow-2xl py-2 z-50">
+                <div className="px-3 py-1.5 border-b border-slate-100 dark:border-slate-700 text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                  Navigate System Modules
+                </div>
+                {quickNavTabs.map(tab => {
+                  const Icon = tab.icon;
+                  return (
+                    <button
+                      key={tab.id}
+                      onClick={() => {
+                        setActiveTab(tab.id);
+                        setShowNavMenu(false);
+                      }}
+                      className={`w-full flex items-center gap-2.5 px-3 py-2 text-xs font-semibold hover:bg-indigo-50 dark:hover:bg-slate-700/60 transition-colors ${activeTab === tab.id ? 'text-indigo-600 dark:text-indigo-400 bg-indigo-50/70 dark:bg-indigo-950/40 font-bold' : 'text-slate-700 dark:text-slate-200'}`}
+                    >
+                      <Icon className="w-4 h-4 text-indigo-500" />
+                      <span>{tab.label}</span>
+                    </button>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+        )}
+
         <div className="relative w-full">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
           <input
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Global Search (POs, Vendors, Invoices, Products, RFQs)..."
-            className="w-full pl-9 pr-4 py-2 text-sm bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500/50 text-slate-800 dark:text-slate-200 placeholder-slate-400 transition-all"
+            placeholder="Search POs, Vendors, Invoices..."
+            className="w-full pl-9 pr-8 py-1.5 text-xs sm:text-sm bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500/50 text-slate-800 dark:text-slate-200 placeholder-slate-400 transition-all"
           />
           {searchQuery && (
             <button 
               onClick={() => setSearchQuery('')}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+              className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
             >
               <X className="w-4 h-4" />
             </button>

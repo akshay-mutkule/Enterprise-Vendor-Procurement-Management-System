@@ -25,7 +25,7 @@ interface SidebarProps {
 }
 
 export const Sidebar: React.FC<SidebarProps> = ({ 
-  activeTab, setActiveTab, collapsed, setCollapsed 
+  activeTab, setActiveTab, collapsed = false, setCollapsed 
 }) => {
   const { currentRole } = useProcurement();
 
@@ -46,7 +46,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
   return (
     <aside 
-      className={`${collapsed ? 'w-20' : 'w-64'} bg-slate-900 text-slate-300 flex flex-col h-screen sticky top-0 transition-all duration-300 z-40 border-r border-slate-800 shrink-0`}
+      className={`${collapsed ? 'w-20' : 'w-64'} bg-slate-900 text-slate-300 flex flex-col h-full sticky top-0 transition-all duration-300 z-40 border-r border-slate-800 shrink-0`}
     >
       {/* Brand Logo */}
       <div className="h-16 flex items-center justify-between px-4 border-b border-slate-800">
@@ -67,7 +67,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
           </div>
         )}
         <button
-          onClick={() => setCollapsed(!collapsed)}
+          onClick={() => setCollapsed && setCollapsed(!collapsed)}
           className="p-1.5 rounded-lg text-slate-400 hover:bg-slate-800 hover:text-white transition-colors"
           title={collapsed ? "Expand Sidebar" : "Collapse Sidebar"}
         >
