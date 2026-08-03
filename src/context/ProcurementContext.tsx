@@ -74,15 +74,23 @@ export const ProcurementProvider: React.FC<{ children: React.ReactNode }> = ({ c
   const [auditLogs, setAuditLogs] = useState<AuditLog[]>(initialAuditLogs);
   const [notifications, setNotifications] = useState<SystemNotification[]>(initialNotifications);
   
-  const [theme, setTheme] = useState<'light' | 'dark'>('light');
+  const [theme, setTheme] = useState<'light' | 'dark'>(() => {
+    const saved = localStorage.getItem('theme');
+    return (saved === 'dark' || saved === 'light') ? saved : 'light';
+  });
   const [language, setLanguage] = useState<'EN' | 'ES' | 'FR' | 'DE' | 'HI'>('EN');
   const [searchQuery, setSearchQuery] = useState<string>('');
 
   useEffect(() => {
+    const root = document.documentElement;
     if (theme === 'dark') {
-      document.documentElement.classList.add('dark');
+      root.classList.add('dark');
+      document.body.classList.add('dark');
+      localStorage.setItem('theme', 'dark');
     } else {
-      document.documentElement.classList.remove('dark');
+      root.classList.remove('dark');
+      document.body.classList.remove('dark');
+      localStorage.setItem('theme', 'light');
     }
   }, [theme]);
 
