@@ -4,6 +4,7 @@ import {
   PurchaseRequisition, RFQ, Quotation, PurchaseOrder, 
   Invoice, Payment, AuditLog, SystemNotification, POStatus, RequisitionStatus, InvoiceStatus, VendorDocument 
 } from '../types';
+import { getTranslation, Language } from '../utils/translations';
 import { 
   initialUsers, initialVendors, initialWarehouses, 
   initialProducts, initialRequisitions, initialRFQs, 
@@ -27,7 +28,8 @@ interface ProcurementContextType {
   auditLogs: AuditLog[];
   notifications: SystemNotification[];
   theme: 'light' | 'dark';
-  language: 'EN' | 'ES' | 'FR' | 'DE' | 'HI';
+  language: Language;
+  t: (key: string) => string;
   searchQuery: string;
   setSearchQuery: (q: string) => void;
   switchRole: (role: UserRole) => void;
@@ -346,6 +348,7 @@ export const ProcurementProvider: React.FC<{ children: React.ReactNode }> = ({ c
       notifications,
       theme,
       language,
+      t: (key: string) => getTranslation(key, language),
       searchQuery,
       setSearchQuery,
       switchRole,

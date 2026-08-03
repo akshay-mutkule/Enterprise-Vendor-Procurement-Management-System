@@ -22,7 +22,7 @@ export const Header: React.FC<HeaderProps> = ({
   const { 
     currentRole, currentUser, switchRole, theme, toggleTheme, 
     language, setLanguage, searchQuery, setSearchQuery,
-    notifications, markNotificationRead, clearAllNotifications 
+    notifications, markNotificationRead, clearAllNotifications, t 
   } = useProcurement();
 
   const [showRoleDropdown, setShowRoleDropdown] = useState(false);
@@ -40,16 +40,16 @@ export const Header: React.FC<HeaderProps> = ({
   ];
 
   const quickNavTabs = [
-    { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
-    { id: 'vendors', label: 'Vendors', icon: Users },
-    { id: 'procurement', label: 'Procurement', icon: ShoppingBag },
-    { id: 'inventory', label: 'Inventory', icon: Package },
-    { id: 'finance', label: 'Finance', icon: FileText },
-    { id: 'ai', label: 'AI Risk', icon: Sparkles },
-    { id: 'reports', label: 'Reports', icon: BarChart3 },
-    { id: 'notifications', label: 'Alerts', icon: Bell },
-    { id: 'developer', label: 'Dev Hub', icon: Terminal },
-    { id: 'audit', label: 'Audit Log', icon: ShieldAlert },
+    { id: 'dashboard', label: t('dashboard'), icon: LayoutDashboard },
+    { id: 'vendors', label: t('vendors'), icon: Users },
+    { id: 'procurement', label: t('procurement'), icon: ShoppingBag },
+    { id: 'inventory', label: t('inventory'), icon: Package },
+    { id: 'finance', label: t('finance'), icon: FileText },
+    { id: 'ai', label: t('aiRisk'), icon: Sparkles },
+    { id: 'reports', label: t('reports'), icon: BarChart3 },
+    { id: 'notifications', label: t('notifications'), icon: Bell },
+    { id: 'developer', label: t('developer'), icon: Terminal },
+    { id: 'audit', label: t('auditLog'), icon: ShieldAlert },
   ];
 
   const unreadCount = notifications.filter(n => !n.read).length;
@@ -114,7 +114,7 @@ export const Header: React.FC<HeaderProps> = ({
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Search POs, Vendors, Invoices..."
+            placeholder={t('search')}
             className="w-full pl-9 pr-8 py-1.5 text-xs sm:text-sm bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500/50 text-slate-800 dark:text-slate-200 placeholder-slate-400 transition-all"
           />
           {searchQuery && (

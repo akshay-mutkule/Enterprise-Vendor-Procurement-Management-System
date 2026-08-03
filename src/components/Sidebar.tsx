@@ -27,19 +27,19 @@ interface SidebarProps {
 export const Sidebar: React.FC<SidebarProps> = ({ 
   activeTab, setActiveTab, collapsed = false, setCollapsed 
 }) => {
-  const { currentRole } = useProcurement();
+  const { currentRole, t } = useProcurement();
 
   const navItems = [
-    { id: 'dashboard' as ActiveTab, label: 'Executive Dashboard', icon: LayoutDashboard, roles: ['SUPER_ADMIN', 'PROCUREMENT_MANAGER', 'FINANCE_MANAGER', 'WAREHOUSE_MANAGER', 'EMPLOYEE'] },
-    { id: 'vendors' as ActiveTab, label: 'Vendor Lifecycle', icon: Users, roles: ['SUPER_ADMIN', 'PROCUREMENT_MANAGER', 'FINANCE_MANAGER', 'VENDOR'] },
-    { id: 'procurement' as ActiveTab, label: 'Procurement (PR, RFQ, PO)', icon: ShoppingBag, roles: ['SUPER_ADMIN', 'PROCUREMENT_MANAGER', 'VENDOR', 'EMPLOYEE'] },
-    { id: 'inventory' as ActiveTab, label: 'Inventory & Warehouse', icon: Package, roles: ['SUPER_ADMIN', 'WAREHOUSE_MANAGER', 'PROCUREMENT_MANAGER'] },
-    { id: 'finance' as ActiveTab, label: 'Invoices & Finance', icon: FileText, roles: ['SUPER_ADMIN', 'FINANCE_MANAGER', 'VENDOR'] },
-    { id: 'ai' as ActiveTab, label: 'AI Risk & Analytics', icon: Sparkles, roles: ['SUPER_ADMIN', 'PROCUREMENT_MANAGER', 'FINANCE_MANAGER'] },
-    { id: 'reports' as ActiveTab, label: 'Reports & Exports', icon: BarChart3, roles: ['SUPER_ADMIN', 'PROCUREMENT_MANAGER', 'FINANCE_MANAGER', 'WAREHOUSE_MANAGER'] },
-    { id: 'notifications' as ActiveTab, label: 'Alerts & Email Center', icon: Bell, roles: ['SUPER_ADMIN', 'PROCUREMENT_MANAGER', 'FINANCE_MANAGER', 'WAREHOUSE_MANAGER', 'VENDOR', 'EMPLOYEE'] },
-    { id: 'developer' as ActiveTab, label: 'Architecture & API Docs', icon: Terminal, roles: ['SUPER_ADMIN', 'PROCUREMENT_MANAGER', 'FINANCE_MANAGER', 'WAREHOUSE_MANAGER', 'VENDOR', 'EMPLOYEE'] },
-    { id: 'audit' as ActiveTab, label: 'Audit Trail Logs', icon: ShieldAlert, roles: ['SUPER_ADMIN', 'PROCUREMENT_MANAGER', 'FINANCE_MANAGER'] },
+    { id: 'dashboard' as ActiveTab, translationKey: 'dashboard', defaultLabel: 'Executive Dashboard', icon: LayoutDashboard, roles: ['SUPER_ADMIN', 'PROCUREMENT_MANAGER', 'FINANCE_MANAGER', 'WAREHOUSE_MANAGER', 'EMPLOYEE'] },
+    { id: 'vendors' as ActiveTab, translationKey: 'vendors', defaultLabel: 'Vendor Lifecycle', icon: Users, roles: ['SUPER_ADMIN', 'PROCUREMENT_MANAGER', 'FINANCE_MANAGER', 'VENDOR'] },
+    { id: 'procurement' as ActiveTab, translationKey: 'procurement', defaultLabel: 'Procurement (PR, RFQ, PO)', icon: ShoppingBag, roles: ['SUPER_ADMIN', 'PROCUREMENT_MANAGER', 'VENDOR', 'EMPLOYEE'] },
+    { id: 'inventory' as ActiveTab, translationKey: 'inventory', defaultLabel: 'Inventory & Warehouse', icon: Package, roles: ['SUPER_ADMIN', 'WAREHOUSE_MANAGER', 'PROCUREMENT_MANAGER'] },
+    { id: 'finance' as ActiveTab, translationKey: 'finance', defaultLabel: 'Invoices & Finance', icon: FileText, roles: ['SUPER_ADMIN', 'FINANCE_MANAGER', 'VENDOR'] },
+    { id: 'ai' as ActiveTab, translationKey: 'aiRisk', defaultLabel: 'AI Risk & Analytics', icon: Sparkles, roles: ['SUPER_ADMIN', 'PROCUREMENT_MANAGER', 'FINANCE_MANAGER'] },
+    { id: 'reports' as ActiveTab, translationKey: 'reports', defaultLabel: 'Reports & Exports', icon: BarChart3, roles: ['SUPER_ADMIN', 'PROCUREMENT_MANAGER', 'FINANCE_MANAGER', 'WAREHOUSE_MANAGER'] },
+    { id: 'notifications' as ActiveTab, translationKey: 'notifications', defaultLabel: 'Alerts & Email Center', icon: Bell, roles: ['SUPER_ADMIN', 'PROCUREMENT_MANAGER', 'FINANCE_MANAGER', 'WAREHOUSE_MANAGER', 'VENDOR', 'EMPLOYEE'] },
+    { id: 'developer' as ActiveTab, translationKey: 'developer', defaultLabel: 'Architecture & API Docs', icon: Terminal, roles: ['SUPER_ADMIN', 'PROCUREMENT_MANAGER', 'FINANCE_MANAGER', 'WAREHOUSE_MANAGER', 'VENDOR', 'EMPLOYEE'] },
+    { id: 'audit' as ActiveTab, translationKey: 'auditLog', defaultLabel: 'Audit Trail Logs', icon: ShieldAlert, roles: ['SUPER_ADMIN', 'PROCUREMENT_MANAGER', 'FINANCE_MANAGER'] },
   ];
 
   const filteredItems = navItems.filter(item => item.roles.includes(currentRole));
@@ -89,10 +89,10 @@ export const Sidebar: React.FC<SidebarProps> = ({
                   ? 'bg-indigo-600 text-white font-semibold shadow-md shadow-indigo-600/30'
                   : 'text-slate-400 hover:bg-slate-800/80 hover:text-slate-200'
               }`}
-              title={collapsed ? item.label : undefined}
+              title={collapsed ? t(item.translationKey) : undefined}
             >
               <Icon className={`w-4 h-4 shrink-0 ${isActive ? 'text-white' : 'text-slate-400'}`} />
-              {!collapsed && <span className="truncate">{item.label}</span>}
+              {!collapsed && <span className="truncate">{t(item.translationKey)}</span>}
               {!collapsed && isActive && (
                 <div className="w-1.5 h-1.5 rounded-full bg-white ml-auto"></div>
               )}

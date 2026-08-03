@@ -15,7 +15,7 @@ interface DashboardViewProps {
 }
 
 export const DashboardView: React.FC<DashboardViewProps> = ({ onNavigate }) => {
-  const { vendors, products, purchaseOrders, invoices, currentRole, switchRole } = useProcurement();
+  const { vendors, products, purchaseOrders, invoices, currentRole, switchRole, t } = useProcurement();
 
   const totalProcurementSpend = purchaseOrders.reduce((sum, po) => sum + po.totalAmount, 0);
   const activeVendors = vendors.filter(v => v.status === 'APPROVED').length;
@@ -58,7 +58,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({ onNavigate }) => {
               <span>SAP Ariba & Oracle Procurement Cloud Architecture</span>
             </div>
             <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight">
-              Enterprise Procurement & Vendor Hub
+              {t('procurementDashboard')}
             </h1>
             <p className="text-slate-300 text-xs md:text-sm mt-1 max-w-2xl">
               Active Mode: <span className="text-white font-semibold underline decoration-indigo-400">{currentRole}</span>. Real-time spend tracking, vendor risk analytics, RFQ workflows, and automated invoice verification.
@@ -87,7 +87,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({ onNavigate }) => {
         {/* Total Spend */}
         <div className="bg-white dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700/80 rounded-xl p-5 shadow-sm hover:shadow-md transition-all">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-medium text-slate-500 dark:text-slate-400">Total Spend YTD</span>
+            <span className="text-xs font-medium text-slate-500 dark:text-slate-400">{t('totalSpend')}</span>
             <div className="w-9 h-9 rounded-lg bg-indigo-50 dark:bg-indigo-950/50 flex items-center justify-center text-indigo-600 dark:text-indigo-400">
               <DollarSign className="w-5 h-5" />
             </div>
@@ -104,7 +104,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({ onNavigate }) => {
         {/* Active Vendors */}
         <div className="bg-white dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700/80 rounded-xl p-5 shadow-sm hover:shadow-md transition-all">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-medium text-slate-500 dark:text-slate-400">Active Vendors</span>
+            <span className="text-xs font-medium text-slate-500 dark:text-slate-400">{t('activeVendors')}</span>
             <div className="w-9 h-9 rounded-lg bg-emerald-50 dark:bg-emerald-950/50 flex items-center justify-center text-emerald-600 dark:text-emerald-400">
               <Users className="w-5 h-5" />
             </div>
@@ -121,7 +121,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({ onNavigate }) => {
         {/* Pending Invoices */}
         <div className="bg-white dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700/80 rounded-xl p-5 shadow-sm hover:shadow-md transition-all">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-medium text-slate-500 dark:text-slate-400">Pending Invoices</span>
+            <span className="text-xs font-medium text-slate-500 dark:text-slate-400">{t('finance')} ({t('status')})</span>
             <div className="w-9 h-9 rounded-lg bg-amber-50 dark:bg-amber-950/50 flex items-center justify-center text-amber-600 dark:text-amber-400">
               <ShoppingBag className="w-5 h-5" />
             </div>
@@ -138,7 +138,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({ onNavigate }) => {
         {/* Low Stock Items */}
         <div className="bg-white dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700/80 rounded-xl p-5 shadow-sm hover:shadow-md transition-all">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-medium text-slate-500 dark:text-slate-400">Low Stock Reorders</span>
+            <span className="text-xs font-medium text-slate-500 dark:text-slate-400">{t('lowStockAlerts')}</span>
             <div className="w-9 h-9 rounded-lg bg-rose-50 dark:bg-rose-950/50 flex items-center justify-center text-rose-600 dark:text-rose-400">
               <Package className="w-5 h-5" />
             </div>
