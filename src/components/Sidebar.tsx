@@ -1,9 +1,10 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { 
   LayoutDashboard, Users, ShoppingBag, Package, FileText, 
-  Sparkles, Bell, BarChart3, Terminal, ShieldAlert, ChevronLeft, ChevronRight 
+  Sparkles, Bell, BarChart3, Terminal, ShieldAlert, ChevronLeft, ChevronRight, User as UserIcon 
 } from 'lucide-react';
 import { useProcurement } from '../context/ProcurementContext';
+import { UserProfileModal } from './UserProfileModal';
 
 export type ActiveTab = 
   | 'dashboard' 
@@ -27,7 +28,8 @@ interface SidebarProps {
 export const Sidebar: React.FC<SidebarProps> = ({ 
   activeTab, setActiveTab, collapsed = false, setCollapsed 
 }) => {
-  const { currentRole, t } = useProcurement();
+  const { currentRole, currentUser, t } = useProcurement();
+  const [showProfileModal, setShowProfileModal] = useState(false);
 
   const navItems = [
     { id: 'dashboard' as ActiveTab, translationKey: 'dashboard', defaultLabel: 'Executive Dashboard', icon: LayoutDashboard, roles: ['SUPER_ADMIN', 'PROCUREMENT_MANAGER', 'FINANCE_MANAGER', 'WAREHOUSE_MANAGER', 'EMPLOYEE'] },
@@ -101,18 +103,47 @@ export const Sidebar: React.FC<SidebarProps> = ({
         })}
       </nav>
 
-      {/* Footer info */}
-      {!collapsed && (
-        <div className="p-4 border-t border-slate-800 bg-slate-950/50">
-          <div className="text-[10px] text-slate-500 uppercase tracking-wider font-semibold">
-            System Architecture
+      {/* Footer User Profile & System info */}
+      <div className="p-3 border-t border-slate-800 bg-slate-950/50">
+        <button
+          onClick={() => setShowProfileModal(true)}
+          className="w-full flex items-center gap-2.5 p-2 rounded-xl hover:bg-slate-800/80 transition-all text-left group"
+          title="Click to view user profile details"
+        >
+          <div className="relative shrink-0">
+            <img
+              src={currentUser.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150'}
+              alt={currentUser.name}
+              className="w-8 h-8 rounded-full object-cover ring-2 ring-indigo-500/30 group-hover:ring-indigo-400"
+            />
+            <span className="absolute bottom-0 right-0 w-2 h-2 bg-emerald-500 ring-2 ring-slate-950 rounded-full"></span>
           </div>
-          <div className="text-xs text-slate-400 mt-1 flex items-center justify-between">
+          {!collapsed && (
+            <div className="flex-1 min-w-0">
+              <div className="text-xs font-bold text-slate-200 truncate group-hover:text-indigo-400 transition-colors">
+                {currentUser.name}
+              </div>
+              <div className="text-[10px] text-slate-400 truncate">
+                {currentUser.department || currentRole}
+              </div>
+            </div>
+          )}
+        </button>
+
+        {!collapsed && (
+          <div className="mt-2 pt-2 border-t border-slate-800/60 flex items-center justify-between text-[10px] text-slate-500">
             <span>MySQL + Spring Boot</span>
-            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-ping"></span>
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
           </div>
-        </div>
-      )}
+        )}
+      </div>
+
+      {/* User Profile Modal */}
+      <UserProfileModal 
+        isOpen={showProfileModal} 
+        onClose={() => setShowProfileModal(false)} 
+        onNavigateTab={(tab) => setActiveTab(tab as ActiveTab)} 
+      />
     </aside>
   );
 };

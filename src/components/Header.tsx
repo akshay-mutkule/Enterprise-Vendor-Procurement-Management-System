@@ -6,6 +6,7 @@ import {
 } from 'lucide-react';
 import { useProcurement } from '../context/ProcurementContext';
 import { UserRole } from '../types';
+import { UserProfileModal } from './UserProfileModal';
 
 interface HeaderProps {
   activeTab?: string;
@@ -29,6 +30,7 @@ export const Header: React.FC<HeaderProps> = ({
   const [showNotifications, setShowNotifications] = useState(false);
   const [showLangDropdown, setShowLangDropdown] = useState(false);
   const [showNavMenu, setShowNavMenu] = useState(false);
+  const [showProfileModal, setShowProfileModal] = useState(false);
 
   const roles: { role: UserRole; label: string; color: string }[] = [
     { role: 'SUPER_ADMIN', label: 'Super Admin', color: 'bg-indigo-600 text-white' },
@@ -281,18 +283,35 @@ export const Header: React.FC<HeaderProps> = ({
           )}
         </div>
 
-        {/* User Info */}
-        <div className="flex items-center gap-2 pl-2 border-l border-slate-200 dark:border-slate-700">
-          <img
-            src={currentUser.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150'}
-            alt={currentUser.name}
-            className="w-8 h-8 rounded-full object-cover ring-2 ring-indigo-500/30"
-          />
+        {/* User Info (Clickable for Profile Details) */}
+        <button 
+          onClick={() => setShowProfileModal(true)}
+          className="flex items-center gap-2 pl-2 border-l border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 p-1 rounded-lg transition-all text-left cursor-pointer group"
+          title="Click to view full user profile & identity details"
+        >
+          <div className="relative">
+            <img
+              src={currentUser.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150'}
+              alt={currentUser.name}
+              className="w-8 h-8 rounded-full object-cover ring-2 ring-indigo-500/30 group-hover:ring-indigo-500 transition-all"
+            />
+            <span className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-emerald-500 ring-2 ring-white dark:ring-slate-900 rounded-full"></span>
+          </div>
           <div className="hidden lg:block">
-            <div className="text-xs font-bold text-slate-800 dark:text-slate-200">{currentUser.name}</div>
+            <div className="text-xs font-bold text-slate-800 dark:text-slate-200 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors flex items-center gap-1">
+              {currentUser.name}
+              <ChevronDown className="w-3 h-3 text-slate-400" />
+            </div>
             <div className="text-[10px] text-slate-500 dark:text-slate-400">{currentUser.department || 'Enterprise Admin'}</div>
           </div>
-        </div>
+        </button>
+
+        {/* User Profile Details Modal */}
+        <UserProfileModal 
+          isOpen={showProfileModal} 
+          onClose={() => setShowProfileModal(false)} 
+          onNavigateTab={setActiveTab} 
+        />
 
       </div>
     </header>
