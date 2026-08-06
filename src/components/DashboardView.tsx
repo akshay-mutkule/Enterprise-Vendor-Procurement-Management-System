@@ -85,7 +85,10 @@ export const DashboardView: React.FC<DashboardViewProps> = ({ onNavigate }) => {
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         
         {/* Total Spend */}
-        <div className="bg-white dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700/80 rounded-xl p-5 shadow-sm hover:shadow-md transition-all">
+        <div 
+          onClick={() => onNavigate?.('procurement')}
+          className="bg-white dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700/80 rounded-xl p-5 shadow-sm hover:shadow-md hover:border-indigo-500 dark:hover:border-indigo-500 cursor-pointer transition-all"
+        >
           <div className="flex items-center justify-between">
             <span className="text-xs font-medium text-slate-500 dark:text-slate-400">{t('totalSpend')}</span>
             <div className="w-9 h-9 rounded-lg bg-indigo-50 dark:bg-indigo-950/50 flex items-center justify-center text-indigo-600 dark:text-indigo-400">
@@ -102,7 +105,10 @@ export const DashboardView: React.FC<DashboardViewProps> = ({ onNavigate }) => {
         </div>
 
         {/* Active Vendors */}
-        <div className="bg-white dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700/80 rounded-xl p-5 shadow-sm hover:shadow-md transition-all">
+        <div 
+          onClick={() => onNavigate?.('vendors')}
+          className="bg-white dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700/80 rounded-xl p-5 shadow-sm hover:shadow-md hover:border-emerald-500 dark:hover:border-emerald-500 cursor-pointer transition-all"
+        >
           <div className="flex items-center justify-between">
             <span className="text-xs font-medium text-slate-500 dark:text-slate-400">{t('activeVendors')}</span>
             <div className="w-9 h-9 rounded-lg bg-emerald-50 dark:bg-emerald-950/50 flex items-center justify-center text-emerald-600 dark:text-emerald-400">
@@ -119,7 +125,10 @@ export const DashboardView: React.FC<DashboardViewProps> = ({ onNavigate }) => {
         </div>
 
         {/* Pending Invoices */}
-        <div className="bg-white dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700/80 rounded-xl p-5 shadow-sm hover:shadow-md transition-all">
+        <div 
+          onClick={() => onNavigate?.('finance')}
+          className="bg-white dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700/80 rounded-xl p-5 shadow-sm hover:shadow-md hover:border-amber-500 dark:hover:border-amber-500 cursor-pointer transition-all"
+        >
           <div className="flex items-center justify-between">
             <span className="text-xs font-medium text-slate-500 dark:text-slate-400">{t('finance')} ({t('status')})</span>
             <div className="w-9 h-9 rounded-lg bg-amber-50 dark:bg-amber-950/50 flex items-center justify-center text-amber-600 dark:text-amber-400">
@@ -136,7 +145,10 @@ export const DashboardView: React.FC<DashboardViewProps> = ({ onNavigate }) => {
         </div>
 
         {/* Low Stock Items */}
-        <div className="bg-white dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700/80 rounded-xl p-5 shadow-sm hover:shadow-md transition-all">
+        <div 
+          onClick={() => onNavigate?.('inventory')}
+          className="bg-white dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700/80 rounded-xl p-5 shadow-sm hover:shadow-md hover:border-rose-500 dark:hover:border-rose-500 cursor-pointer transition-all"
+        >
           <div className="flex items-center justify-between">
             <span className="text-xs font-medium text-slate-500 dark:text-slate-400">{t('lowStockAlerts')}</span>
             <div className="w-9 h-9 rounded-lg bg-rose-50 dark:bg-rose-950/50 flex items-center justify-center text-rose-600 dark:text-rose-400">

@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { 
   Plus, Search, Filter, ShieldCheck, ShieldAlert, CheckCircle, 
   XCircle, Ban, FileText, Star, Award, Building2, CreditCard, 
-  Upload, Sparkles, ExternalLink 
+  Upload, Sparkles, ExternalLink, Download 
 } from 'lucide-react';
 import { useProcurement } from '../context/ProcurementContext';
 import { Vendor, VendorStatus } from '../types';
@@ -301,9 +301,25 @@ export const VendorManagementView: React.FC = () => {
                               <span className="text-[10px] text-slate-400">{doc.type} • Uploaded {doc.uploadDate}</span>
                             </div>
                           </div>
-                          <span className="text-xs text-emerald-600 font-bold flex items-center gap-1">
-                            <ShieldCheck className="w-3.5 h-3.5" /> Verified
-                          </span>
+                          <div className="flex items-center gap-3">
+                            <span className="text-xs text-emerald-600 font-bold flex items-center gap-1">
+                              <ShieldCheck className="w-3.5 h-3.5" /> Verified
+                            </span>
+                            <button
+                              onClick={() => {
+                                const blob = new Blob([`Document Name: ${doc.name}\nType: ${doc.type}\nUpload Date: ${doc.uploadDate}\nVendor: ${selectedVendor.name}\nStatus: VERIFIED`], { type: 'text/plain' });
+                                const url = URL.createObjectURL(blob);
+                                const a = document.createElement('a');
+                                a.href = url;
+                                a.download = `${doc.name.replace(/\s+/g, '_')}.txt`;
+                                a.click();
+                                URL.revokeObjectURL(url);
+                              }}
+                              className="px-2.5 py-1 bg-indigo-50 dark:bg-indigo-950 text-indigo-600 dark:text-indigo-400 font-bold rounded text-[11px] hover:bg-indigo-100 dark:hover:bg-indigo-900 transition-colors flex items-center gap-1"
+                            >
+                              <Download className="w-3 h-3" /> Download
+                            </button>
+                          </div>
                         </div>
                       ))
                     )}
