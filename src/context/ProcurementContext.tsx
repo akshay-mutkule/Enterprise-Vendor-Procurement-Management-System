@@ -62,17 +62,43 @@ export const ProcurementProvider: React.FC<{ children: React.ReactNode }> = ({ c
   const [currentRole, setCurrentRole] = useState<UserRole>('PROCUREMENT_MANAGER');
   const [currentUser, setCurrentUser] = useState<User>(initialUsers[1]); // Marcus Sterling
 
-  const [vendors, setVendors] = useState<Vendor[]>(initialVendors);
-  const [products, setProducts] = useState<Product[]>(initialProducts);
-  const [warehouses, setWarehouses] = useState<Warehouse[]>(initialWarehouses);
-  const [requisitions, setRequisitions] = useState<PurchaseRequisition[]>(initialRequisitions);
-  const [rfqs, setRFQs] = useState<RFQ[]>(initialRFQs);
-  const [quotations, setQuotations] = useState<Quotation[]>(initialQuotations);
-  const [purchaseOrders, setPurchaseOrders] = useState<PurchaseOrder[]>(initialPurchaseOrders);
-  const [invoices, setInvoices] = useState<Invoice[]>(initialInvoices);
-  const [payments, setPayments] = useState<Payment[]>(initialPayments);
-  const [auditLogs, setAuditLogs] = useState<AuditLog[]>(initialAuditLogs);
-  const [notifications, setNotifications] = useState<SystemNotification[]>(initialNotifications);
+  // Helper function to initialize state from localStorage or fallback to default mock data
+  const getInitial = <T,>(key: string, defaultValue: T): T => {
+    try {
+      const saved = localStorage.getItem(key);
+      if (saved) {
+        return JSON.parse(saved);
+      }
+    } catch (err) {
+      console.warn(`Error reading ${key} from localStorage:`, err);
+    }
+    return defaultValue;
+  };
+
+  const [vendors, setVendors] = useState<Vendor[]>(() => getInitial('procurement_vendors', initialVendors));
+  const [products, setProducts] = useState<Product[]>(() => getInitial('procurement_products', initialProducts));
+  const [warehouses, setWarehouses] = useState<Warehouse[]>(() => getInitial('procurement_warehouses', initialWarehouses));
+  const [requisitions, setRequisitions] = useState<PurchaseRequisition[]>(() => getInitial('procurement_requisitions', initialRequisitions));
+  const [rfqs, setRFQs] = useState<RFQ[]>(() => getInitial('procurement_rfqs', initialRFQs));
+  const [quotations, setQuotations] = useState<Quotation[]>(() => getInitial('procurement_quotations', initialQuotations));
+  const [purchaseOrders, setPurchaseOrders] = useState<PurchaseOrder[]>(() => getInitial('procurement_pos', initialPurchaseOrders));
+  const [invoices, setInvoices] = useState<Invoice[]>(() => getInitial('procurement_invoices', initialInvoices));
+  const [payments, setPayments] = useState<Payment[]>(() => getInitial('procurement_payments', initialPayments));
+  const [auditLogs, setAuditLogs] = useState<AuditLog[]>(() => getInitial('procurement_audit_logs', initialAuditLogs));
+  const [notifications, setNotifications] = useState<SystemNotification[]>(() => getInitial('procurement_notifications', initialNotifications));
+
+  // Sync state changes to localStorage automatically
+  useEffect(() => { localStorage.setItem('procurement_vendors', JSON.stringify(vendors)); }, [vendors]);
+  useEffect(() => { localStorage.setItem('procurement_products', JSON.stringify(products)); }, [products]);
+  useEffect(() => { localStorage.setItem('procurement_warehouses', JSON.stringify(warehouses)); }, [warehouses]);
+  useEffect(() => { localStorage.setItem('procurement_requisitions', JSON.stringify(requisitions)); }, [requisitions]);
+  useEffect(() => { localStorage.setItem('procurement_rfqs', JSON.stringify(rfqs)); }, [rfqs]);
+  useEffect(() => { localStorage.setItem('procurement_quotations', JSON.stringify(quotations)); }, [quotations]);
+  useEffect(() => { localStorage.setItem('procurement_pos', JSON.stringify(purchaseOrders)); }, [purchaseOrders]);
+  useEffect(() => { localStorage.setItem('procurement_invoices', JSON.stringify(invoices)); }, [invoices]);
+  useEffect(() => { localStorage.setItem('procurement_payments', JSON.stringify(payments)); }, [payments]);
+  useEffect(() => { localStorage.setItem('procurement_audit_logs', JSON.stringify(auditLogs)); }, [auditLogs]);
+  useEffect(() => { localStorage.setItem('procurement_notifications', JSON.stringify(notifications)); }, [notifications]);
   
   const [theme, setTheme] = useState<'light' | 'dark'>(() => {
     const saved = localStorage.getItem('theme');
