@@ -104,8 +104,15 @@ export const ProcurementProvider: React.FC<{ children: React.ReactNode }> = ({ c
     const saved = localStorage.getItem('theme');
     return (saved === 'dark' || saved === 'light') ? saved : 'light';
   });
-  const [language, setLanguage] = useState<'EN' | 'ES' | 'FR' | 'DE' | 'HI'>('EN');
+  const [language, setLanguage] = useState<'EN' | 'ES' | 'FR' | 'DE' | 'HI'>(() => {
+    const saved = localStorage.getItem('language');
+    return (saved === 'EN' || saved === 'ES' || saved === 'FR' || saved === 'DE' || saved === 'HI') ? saved : 'EN';
+  });
   const [searchQuery, setSearchQuery] = useState<string>('');
+
+  useEffect(() => {
+    localStorage.setItem('language', language);
+  }, [language]);
 
   useEffect(() => {
     const root = document.documentElement;
