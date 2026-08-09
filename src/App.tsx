@@ -12,6 +12,7 @@ import { NotificationsView } from './components/NotificationsView';
 import { ReportsView } from './components/ReportsView';
 import { DeveloperHubView } from './components/DeveloperHubView';
 import { AuditLogView } from './components/AuditLogView';
+import { AiCopilotDrawer } from './components/AiCopilotDrawer';
 
 export default function App() {
   const [activeTab, setActiveTab] = useState<ActiveTab>('dashboard');
@@ -65,6 +66,9 @@ export default function App() {
           </main>
           
         </div>
+
+        {/* Global AI Copilot Floating Assistant */}
+        <AiCopilotDrawer onNavigate={(tab) => setActiveTab(tab as ActiveTab)} />
 
       </div>
     </ProcurementProvider>

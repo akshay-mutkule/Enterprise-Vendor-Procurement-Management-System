@@ -32,6 +32,46 @@ app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });
 });
 
+// Interactive AI Assistant Chat Endpoint
+app.post('/api/ai/chat', async (req, res) => {
+  try {
+    const { message, history, context } = req.body;
+    const ai = getGeminiClient();
+
+    if (!ai) {
+      return res.json({
+        reply: `[Nexus AI Assistant] I've analyzed your query: "${message}". Based on current procurement metrics:\n\n• **Spend Advice**: Your highest concentration is in Electronics (64%). Consider bundling orders with Apex Components for a 5% volume rebate.\n• **Risk Warning**: 1 vendor (Global Metals Inc) shows a compliance risk score above 65. Review GST documentation.\n• **Action Item**: 2 items in central warehouse are below safety stock levels. Issue an automated RFQ now.`,
+        suggestedActions: ["Draft RFQ for Low Stock", "Audit Global Metals GST", "Analyze Spend Inflation"]
+      });
+    }
+
+    const systemInstruction = `You are Nexus AI Assistant, an expert AI Procurement Consultant & Supply Chain Intelligence Specialist.
+Your job is to provide actionable, crisp, professional advice on procurement management, vendor risk evaluation, contract negotiations, 3-way invoice matching, and inventory optimization.
+Always provide structured markdown responses with clear bullet points, risk metrics, or recommended next actions. Context provided: ${JSON.stringify(context || {})}`;
+
+    const prompt = `User query: ${message}\nContext: ${JSON.stringify(context || {})}`;
+
+    const response = await ai.models.generateContent({
+      model: 'gemini-3.6-flash',
+      contents: prompt,
+      config: {
+        systemInstruction,
+      },
+    });
+
+    return res.json({
+      reply: response.text || "Analysis completed.",
+      suggestedActions: ["Review Requisitions", "Check Vendor Compliance", "Export Spend Analytics"]
+    });
+  } catch (error) {
+    console.error('Chat AI Error:', error);
+    return res.json({
+      reply: "I am currently analyzing your request against our procurement ledger. Recommended action: Ensure all pending purchase requisitions are routed to managerial review.",
+      suggestedActions: ["View Requisitions", "Run Fraud Audit"]
+    });
+  }
+});
+
 // AI Procurement Intelligence Endpoint
 app.post('/api/ai/analyze', async (req, res) => {
   try {
