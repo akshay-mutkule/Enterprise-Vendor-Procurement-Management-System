@@ -220,34 +220,78 @@ export const InvoiceFinanceView: React.FC = () => {
       {/* Modal: Upload Invoice */}
       {showUploadModal && (
         <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl max-w-md w-full p-6 shadow-2xl">
-            <h3 className="text-base font-extrabold text-slate-900 dark:text-white mb-4">Upload Digital Invoice</h3>
+          <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl max-w-lg w-full p-6 shadow-2xl">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-base font-extrabold text-slate-900 dark:text-white flex items-center gap-2">
+                <Upload className="w-5 h-5 text-indigo-600" /> Upload Digital Invoice & Auto OCR
+              </h3>
+              <button onClick={() => setShowUploadModal(false)} className="text-slate-400 hover:text-slate-600">✕</button>
+            </div>
+
+            {/* AI OCR Scanner Box */}
+            <div className="p-4 mb-4 bg-indigo-50/60 dark:bg-indigo-950/40 rounded-xl border border-indigo-100 dark:border-indigo-900/50 space-y-2">
+              <div className="flex items-center justify-between text-xs">
+                <span className="font-bold text-indigo-900 dark:text-indigo-300 flex items-center gap-1.5">
+                  <Sparkles className="w-4 h-4 text-indigo-600 animate-pulse" /> Gemini AI Document Parser (OCR)
+                </span>
+                <span className="text-[10px] bg-indigo-200 dark:bg-indigo-900 text-indigo-800 dark:text-indigo-200 font-mono px-2 py-0.5 rounded">Auto-Extract</span>
+              </div>
+              <p className="text-[11px] text-slate-600 dark:text-slate-300">
+                Upload or select a sample bill image to automatically extract GSTIN, line items, PO references, and tax calculations.
+              </p>
+              <button
+                type="button"
+                onClick={async () => {
+                  try {
+                    const res = await fetch('/api/ai/ocr', {
+                      method: 'POST',
+                      headers: { 'Content-Type': 'application/json' },
+                      body: JSON.stringify({ documentName: 'Supplier_Bill_2026.pdf' })
+                    });
+                    const parsed = await res.json();
+                    if (parsed.totalAmount) {
+                      setUploadForm(prev => ({
+                        ...prev,
+                        amount: parsed.totalAmount,
+                        poId: purchaseOrders[0]?.id || prev.poId
+                      }));
+                    }
+                  } catch (e) {
+                    console.error(e);
+                  }
+                }}
+                className="w-full py-2 bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs rounded-lg shadow transition-colors flex items-center justify-center gap-2"
+              >
+                <Sparkles className="w-4 h-4" /> Run AI Auto-Extraction on Sample Bill
+              </button>
+            </div>
+
             <form onSubmit={handleUploadSubmit} className="space-y-3 text-xs">
               <div>
                 <label className="block text-slate-600 dark:text-slate-300 font-semibold mb-1">Target PO Reference</label>
                 <select
                   value={uploadForm.poId}
                   onChange={e => setUploadForm({ ...uploadForm, poId: e.target.value })}
-                  className="w-full px-3 py-2 rounded-lg bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-white"
+                  className="w-full px-3 py-2 rounded-lg bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-white font-mono"
                 >
                   {purchaseOrders.map(p => <option key={p.id} value={p.id}>{p.poNumber} ({p.vendorName}) - ${p.totalAmount}</option>)}
                 </select>
               </div>
 
               <div>
-                <label className="block text-slate-600 dark:text-slate-300 font-semibold mb-1">Invoice Total Amount ($)</label>
+                <label className="block text-slate-600 dark:text-slate-300 font-semibold mb-1">Extracted Invoice Total Amount ($)</label>
                 <input
                   type="number"
                   step="0.01"
                   value={uploadForm.amount}
                   onChange={e => setUploadForm({ ...uploadForm, amount: Number(e.target.value) })}
-                  className="w-full px-3 py-2 rounded-lg bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-white"
+                  className="w-full px-3 py-2 rounded-lg bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-white font-bold"
                 />
               </div>
 
               <div className="flex justify-end gap-3 pt-3">
                 <button type="button" onClick={() => setShowUploadModal(false)} className="px-4 py-2 bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-200 font-semibold rounded-lg">Cancel</button>
-                <button type="submit" className="px-4 py-2 bg-indigo-600 text-white font-semibold rounded-lg shadow-md">Upload & Verify</button>
+                <button type="submit" className="px-4 py-2 bg-indigo-600 text-white font-semibold rounded-lg shadow-md hover:bg-indigo-500">Save & Submit for Matching</button>
               </div>
             </form>
           </div>

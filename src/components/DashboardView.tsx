@@ -14,6 +14,99 @@ interface DashboardViewProps {
   onNavigate?: (tab: string) => void;
 }
 
+const InflationSimulator: React.FC<{ totalProcurementSpend: number }> = ({ totalProcurementSpend }) => {
+  const [rawMaterialIncrease, setRawMaterialIncrease] = React.useState(8);
+  const [freightSurge, setFreightSurge] = React.useState(5);
+  const [fxFluctuation, setFxFluctuation] = React.useState(3);
+
+  const projectedIncrease = totalProcurementSpend * ((rawMaterialIncrease * 0.5 + freightSurge * 0.3 + fxFluctuation * 0.2) / 100);
+  const totalProjectedSpend = totalProcurementSpend + projectedIncrease;
+
+  return (
+    <div className="bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-950 text-white rounded-2xl p-6 shadow-xl border border-indigo-900/60 space-y-4">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 border-b border-indigo-900/60 pb-4">
+        <div>
+          <span className="text-[10px] font-mono font-bold text-indigo-400 uppercase tracking-widest flex items-center gap-1.5">
+            <Sparkles className="w-3.5 h-3.5 text-indigo-400" /> Executive Scenario Lab
+          </span>
+          <h3 className="text-base font-extrabold text-white mt-0.5">Supply Chain Inflation & Tariff Impact Simulator</h3>
+        </div>
+        <div className="text-right">
+          <span className="text-[11px] text-slate-400 block">Projected Cost Impact</span>
+          <span className="text-lg font-extrabold text-rose-400">+{formatCurrency(projectedIncrease)}</span>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-1">
+        
+        {/* Raw Material Slider */}
+        <div className="space-y-2 bg-slate-900/60 p-3.5 rounded-xl border border-slate-800">
+          <div className="flex justify-between text-xs">
+            <span className="text-slate-300 font-semibold">Raw Material Inflation</span>
+            <span className="font-mono text-indigo-400 font-bold">+{rawMaterialIncrease}%</span>
+          </div>
+          <input
+            type="range"
+            min="0"
+            max="30"
+            value={rawMaterialIncrease}
+            onChange={(e) => setRawMaterialIncrease(Number(e.target.value))}
+            className="w-full accent-indigo-500 cursor-pointer h-1.5 bg-slate-700 rounded-lg"
+          />
+          <p className="text-[10px] text-slate-400">Silicon, Copper, Semiconductor wafers</p>
+        </div>
+
+        {/* Freight Slider */}
+        <div className="space-y-2 bg-slate-900/60 p-3.5 rounded-xl border border-slate-800">
+          <div className="flex justify-between text-xs">
+            <span className="text-slate-300 font-semibold">Logistics & Freight Surge</span>
+            <span className="font-mono text-purple-400 font-bold">+{freightSurge}%</span>
+          </div>
+          <input
+            type="range"
+            min="0"
+            max="30"
+            value={freightSurge}
+            onChange={(e) => setFreightSurge(Number(e.target.value))}
+            className="w-full accent-purple-500 cursor-pointer h-1.5 bg-slate-700 rounded-lg"
+          />
+          <p className="text-[10px] text-slate-400">Air freight, port congestion surcharges</p>
+        </div>
+
+        {/* FX Slider */}
+        <div className="space-y-2 bg-slate-900/60 p-3.5 rounded-xl border border-slate-800">
+          <div className="flex justify-between text-xs">
+            <span className="text-slate-300 font-semibold">FX Currency Volatility</span>
+            <span className="font-mono text-emerald-400 font-bold">+{fxFluctuation}%</span>
+          </div>
+          <input
+            type="range"
+            min="0"
+            max="20"
+            value={fxFluctuation}
+            onChange={(e) => setFxFluctuation(Number(e.target.value))}
+            className="w-full accent-emerald-500 cursor-pointer h-1.5 bg-slate-700 rounded-lg"
+          />
+          <p className="text-[10px] text-slate-400">USD/EUR/INR exchange rate shifts</p>
+        </div>
+
+      </div>
+
+      <div className="flex flex-col sm:flex-row items-center justify-between gap-3 bg-indigo-950/40 p-3.5 rounded-xl border border-indigo-800/60 text-xs text-indigo-200">
+        <div>
+          Baseline Spend: <strong className="text-white">{formatCurrency(totalProcurementSpend)}</strong> → Adjusted Target: <strong className="text-rose-300 font-extrabold">{formatCurrency(totalProjectedSpend)}</strong>
+        </div>
+        <button
+          onClick={() => alert(`Simulated Risk Analysis Saved: Expected budget variance of +${formatCurrency(projectedIncrease)} logged to Executive Financial Ledger.`)}
+          className="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white font-bold rounded-lg shadow text-xs whitespace-nowrap"
+        >
+          Commit Scenario Model
+        </button>
+      </div>
+    </div>
+  );
+};
+
 export const DashboardView: React.FC<DashboardViewProps> = ({ onNavigate }) => {
   const { vendors, products, purchaseOrders, invoices, currentRole, switchRole, t } = useProcurement();
 
@@ -255,6 +348,9 @@ export const DashboardView: React.FC<DashboardViewProps> = ({ onNavigate }) => {
         </div>
 
       </div>
+
+      {/* Advanced Interactive Scenario Simulator: Inflation & Tariff Impact */}
+      <InflationSimulator totalProcurementSpend={totalProcurementSpend} />
 
       {/* Vendor Performance & Quick Insights */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
