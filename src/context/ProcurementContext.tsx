@@ -50,6 +50,8 @@ interface ProcurementContextType {
   processPayment: (pay: Omit<Payment, 'id' | 'paymentNumber' | 'paymentDate' | 'status'>) => void;
   toggleTheme: () => void;
   setLanguage: (lang: 'EN' | 'ES' | 'FR' | 'DE' | 'HI') => void;
+  updateUserAvatar: (newAvatarUrl: string) => void;
+  updateUserProfile: (updatedFields: Partial<User>) => void;
   logActivity: (action: string, module: AuditLog['module'], details: string) => void;
   markNotificationRead: (id: string) => void;
   clearAllNotifications: () => void;
@@ -58,9 +60,18 @@ interface ProcurementContextType {
 const ProcurementContext = createContext<ProcurementContextType | undefined>(undefined);
 
 export const ProcurementProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [users] = useState<User[]>(initialUsers);
+  const [users, setUsers] = useState<User[]>(() => {
+    return initialUsers.map(u => {
+      const savedAvatar = localStorage.getItem(`procurement_user_avatar_${u.id}`);
+      return savedAvatar ? { ...u, avatar: savedAvatar } : u;
+    });
+  });
   const [currentRole, setCurrentRole] = useState<UserRole>('PROCUREMENT_MANAGER');
-  const [currentUser, setCurrentUser] = useState<User>(initialUsers[1]); // Marcus Sterling
+  const [currentUser, setCurrentUser] = useState<User>(() => {
+    const defaultUser = initialUsers[1]; // Marcus Sterling
+    const savedAvatar = localStorage.getItem(`procurement_user_avatar_${defaultUser.id}`);
+    return savedAvatar ? { ...defaultUser, avatar: savedAvatar } : defaultUser;
+  });
 
   // Helper function to initialize state from localStorage or fallback to default mock data
   const getInitial = <T,>(key: string, defaultValue: T): T => {
@@ -132,8 +143,31 @@ export const ProcurementProvider: React.FC<{ children: React.ReactNode }> = ({ c
   const switchRole = (role: UserRole) => {
     setCurrentRole(role);
     const foundUser = users.find(u => u.role === role) || users[0];
-    setCurrentUser(foundUser);
+    const savedAvatar = localStorage.getItem(`procurement_user_avatar_${foundUser.id}`);
+    setCurrentUser(savedAvatar ? { ...foundUser, avatar: savedAvatar } : foundUser);
     logActivity('SWITCH_ROLE', 'SYSTEM', `Switched active role to ${role}`);
+  };
+
+  const updateUserAvatar = (newAvatarUrl: string) => {
+    setCurrentUser(prev => {
+      const updated = { ...prev, avatar: newAvatarUrl };
+      localStorage.setItem(`procurement_user_avatar_${prev.id}`, newAvatarUrl);
+      return updated;
+    });
+    setUsers(prevUsers => prevUsers.map(u => u.id === currentUser.id ? { ...u, avatar: newAvatarUrl } : u));
+    logActivity('UPDATE_AVATAR', 'SYSTEM', `Updated profile avatar picture for ${currentUser.name}`);
+  };
+
+  const updateUserProfile = (updatedFields: Partial<User>) => {
+    setCurrentUser(prev => {
+      const updated = { ...prev, ...updatedFields };
+      if (updatedFields.avatar) {
+        localStorage.setItem(`procurement_user_avatar_${prev.id}`, updatedFields.avatar);
+      }
+      return updated;
+    });
+    setUsers(prevUsers => prevUsers.map(u => u.id === currentUser.id ? { ...u, ...updatedFields } : u));
+    logActivity('UPDATE_PROFILE', 'SYSTEM', `Updated profile information for ${currentUser.name}`);
   };
 
   const logActivity = (action: string, module: AuditLog['module'], details: string) => {
@@ -410,6 +444,8 @@ export const ProcurementProvider: React.FC<{ children: React.ReactNode }> = ({ c
       processPayment,
       toggleTheme,
       setLanguage,
+      updateUserAvatar,
+      updateUserProfile,
       logActivity,
       markNotificationRead,
       clearAllNotifications

@@ -294,6 +294,7 @@ export const Header: React.FC<HeaderProps> = ({
               src={currentUser.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150'}
               alt={currentUser.name}
               className="w-8 h-8 rounded-full object-cover ring-2 ring-indigo-500/30 group-hover:ring-indigo-500 transition-all"
+              referrerPolicy="no-referrer"
             />
             <span className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-emerald-500 ring-2 ring-white dark:ring-slate-900 rounded-full"></span>
           </div>
