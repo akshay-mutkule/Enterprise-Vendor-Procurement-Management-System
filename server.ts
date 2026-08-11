@@ -243,6 +243,40 @@ function getFallbackAIResponse(type: string, payload: any) {
         metrics: { recommendedVendor: 'Apex Components Ltd', fitScore: 95, savings: '$4,120' }
       };
 
+    case 'CONTRACT_REDLINE':
+      return {
+        summary: `AI Contract Risk Redline Analysis for ${payload?.vendorName || 'Selected Vendor'} Master Service Agreement: Identified 2 high-risk clauses requiring legal amendment before signature.`,
+        insights: [
+          'Uncapped Liability Clause (Section 8 font redline): Unlimited indemnity exposure for indirect damages. Recommended cap at 2x annual contract value.',
+          'Termination Notice Variance (Section 12 redline): Vendor requested 90-day termination notice vs standard 30-day corporate policy.',
+          'SLA Penalty Cap: Current 1% rebate per delayed week is insufficient for critical assembly components.'
+        ],
+        recommendations: [
+          'Insert standard Liability Cap of $500,000.',
+          'Require 30-day termination for convenience clause.',
+          'Add SLA penalty clause: 2.5% daily deduction for delivery delays exceeding 5 days.'
+        ],
+        score: 72,
+        metrics: { riskLevel: 'MODERATE', redlineClauseCount: 3, legalSafetyScore: '72/100' }
+      };
+
+    case 'NEGOTIATION_SCRIPT':
+      return {
+        summary: `Strategic Supplier Negotiation Script for ${payload?.vendorName || 'Apex Components'}: Targeting an ${payload?.targetDiscount || '8'}% Volume Rebate on Q3 Orders.`,
+        insights: [
+          'Leverage Points: Our total projected annual spend with supplier has increased by 35% YoY.',
+          'Market Benchmark: Microcontroller spot prices in Asia-Pacific have dropped by 3.2% this quarter.',
+          'BATNA Strategy: Alternative qualified vendor (Global Metals / Circuit World) offers equivalent lead times at $38.50/unit.'
+        ],
+        recommendations: [
+          'Opening Offer: Request 10% volume discount on PO orders exceeding $50,000.',
+          'Counter-Offer Target: Settle at 7.5% - 8% with extended 60-day payment terms (Net 60).',
+          'Email Script: "Dear [Vendor Account Manager], As we consolidate our enterprise procurement for Q3, our board requires a 8% volume rebate based on our $250k+ annual volume..."'
+        ],
+        score: 94,
+        metrics: { projectedSavings: '$18,400', leverageIndex: 'HIGH', successProbability: '88%' }
+      };
+
     default:
       return {
         summary: 'Comprehensive Spend & Procurement Analysis completed successfully.',
