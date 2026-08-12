@@ -7,6 +7,9 @@ import { VendorManagementView } from './components/VendorManagementView';
 import { ProcurementView } from './components/ProcurementView';
 import { InventoryView } from './components/InventoryView';
 import { InvoiceFinanceView } from './components/InvoiceFinanceView';
+import { ContractLifecycleView } from './components/ContractLifecycleView';
+import { WorkflowRuleEngineView } from './components/WorkflowRuleEngineView';
+import { SupplyChainRadarView } from './components/SupplyChainRadarView';
 import { AiIntelligenceView } from './components/AiIntelligenceView';
 import { NotificationsView } from './components/NotificationsView';
 import { ReportsView } from './components/ReportsView';
@@ -30,6 +33,12 @@ export default function App() {
         return <InventoryView />;
       case 'finance':
         return <InvoiceFinanceView />;
+      case 'contracts':
+        return <ContractLifecycleView />;
+      case 'workflows':
+        return <WorkflowRuleEngineView />;
+      case 'logistics':
+        return <SupplyChainRadarView />;
       case 'ai':
       case 'ai-analytics' as any:
         return <AiIntelligenceView />;

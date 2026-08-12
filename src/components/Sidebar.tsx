@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { 
   LayoutDashboard, Users, ShoppingBag, Package, FileText, 
-  Sparkles, Bell, BarChart3, Terminal, ShieldAlert, ChevronLeft, ChevronRight, User as UserIcon 
+  Sparkles, Bell, BarChart3, Terminal, ShieldAlert, ChevronLeft, ChevronRight, User as UserIcon,
+  FileCheck, Cpu, Globe2
 } from 'lucide-react';
 import { useProcurement } from '../context/ProcurementContext';
 import { UserProfileModal } from './UserProfileModal';
@@ -12,6 +13,9 @@ export type ActiveTab =
   | 'procurement' 
   | 'inventory' 
   | 'finance' 
+  | 'contracts'
+  | 'workflows'
+  | 'logistics'
   | 'ai' 
   | 'notifications' 
   | 'reports' 
@@ -37,6 +41,9 @@ export const Sidebar: React.FC<SidebarProps> = ({
     { id: 'procurement' as ActiveTab, translationKey: 'procurement', defaultLabel: 'Procurement (PR, RFQ, PO)', icon: ShoppingBag, roles: ['SUPER_ADMIN', 'PROCUREMENT_MANAGER', 'VENDOR', 'EMPLOYEE'] },
     { id: 'inventory' as ActiveTab, translationKey: 'inventory', defaultLabel: 'Inventory & Warehouse', icon: Package, roles: ['SUPER_ADMIN', 'WAREHOUSE_MANAGER', 'PROCUREMENT_MANAGER'] },
     { id: 'finance' as ActiveTab, translationKey: 'finance', defaultLabel: 'Invoices & Finance', icon: FileText, roles: ['SUPER_ADMIN', 'FINANCE_MANAGER', 'VENDOR'] },
+    { id: 'contracts' as ActiveTab, translationKey: 'contracts', defaultLabel: 'Contract CLM & Signatures', icon: FileCheck, roles: ['SUPER_ADMIN', 'PROCUREMENT_MANAGER', 'FINANCE_MANAGER'] },
+    { id: 'workflows' as ActiveTab, translationKey: 'workflows', defaultLabel: 'Workflow Rule Engine', icon: Cpu, roles: ['SUPER_ADMIN', 'PROCUREMENT_MANAGER', 'FINANCE_MANAGER', 'WAREHOUSE_MANAGER'] },
+    { id: 'logistics' as ActiveTab, translationKey: 'logistics', defaultLabel: 'Global Supply Radar', icon: Globe2, roles: ['SUPER_ADMIN', 'PROCUREMENT_MANAGER', 'WAREHOUSE_MANAGER'] },
     { id: 'ai' as ActiveTab, translationKey: 'aiRisk', defaultLabel: 'AI Risk & Analytics', icon: Sparkles, roles: ['SUPER_ADMIN', 'PROCUREMENT_MANAGER', 'FINANCE_MANAGER'] },
     { id: 'reports' as ActiveTab, translationKey: 'reports', defaultLabel: 'Reports & Exports', icon: BarChart3, roles: ['SUPER_ADMIN', 'PROCUREMENT_MANAGER', 'FINANCE_MANAGER', 'WAREHOUSE_MANAGER'] },
     { id: 'notifications' as ActiveTab, translationKey: 'notifications', defaultLabel: 'Alerts & Email Center', icon: Bell, roles: ['SUPER_ADMIN', 'PROCUREMENT_MANAGER', 'FINANCE_MANAGER', 'WAREHOUSE_MANAGER', 'VENDOR', 'EMPLOYEE'] },
