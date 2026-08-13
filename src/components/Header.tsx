@@ -133,6 +133,12 @@ export const Header: React.FC<HeaderProps> = ({
       {/* Right Controls */}
       <div className="flex items-center gap-3 md:gap-4">
 
+        {/* System Online Status Badge */}
+        <div className="hidden lg:flex items-center gap-2 px-2.5 py-1 bg-emerald-500/10 dark:bg-emerald-500/15 border border-emerald-500/30 rounded-full text-[11px] font-mono text-emerald-600 dark:text-emerald-400">
+          <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+          <span>Node Online • 14ms</span>
+        </div>
+
         {/* Role Switcher */}
         <div className="relative">
           <button

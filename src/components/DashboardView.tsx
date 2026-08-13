@@ -142,35 +142,74 @@ export const DashboardView: React.FC<DashboardViewProps> = ({ onNavigate }) => {
     <div className="space-y-6">
       
       {/* Top Banner / Role Greeting */}
-      <div className="bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 rounded-2xl p-6 text-white shadow-xl relative overflow-hidden border border-slate-800">
+      <div className="bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 rounded-2xl p-6 text-white shadow-xl relative overflow-hidden border border-indigo-900/60">
         <div className="absolute right-0 top-0 bottom-0 w-1/3 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-indigo-500/20 via-transparent to-transparent pointer-events-none"></div>
         <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 relative z-10">
           <div>
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 text-xs font-medium mb-3">
               <Sparkles className="w-3.5 h-3.5 text-indigo-400" />
-              <span>SAP Ariba & Oracle Procurement Cloud Architecture</span>
+              <span>Enterprise Procurement Architecture • Live Node</span>
             </div>
             <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight">
               {t('procurementDashboard')}
             </h1>
             <p className="text-slate-300 text-xs md:text-sm mt-1 max-w-2xl">
-              Active Mode: <span className="text-white font-semibold underline decoration-indigo-400">{currentRole}</span>. Real-time spend tracking, vendor risk analytics, RFQ workflows, and automated invoice verification.
+              Active Role: <span className="text-white font-semibold underline decoration-indigo-400">{currentRole}</span>. Real-time spend tracking, vendor risk analytics, RFQ workflows, and automated invoice verification.
             </p>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2">
             <button
               onClick={() => switchRole('PROCUREMENT_MANAGER')}
               className="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl text-xs font-semibold shadow-lg shadow-indigo-600/30 transition-all hover:scale-105"
             >
-              Procurement Manager View
+              Procurement Mgr
             </button>
             <button
               onClick={() => switchRole('FINANCE_MANAGER')}
               className="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 rounded-xl text-xs font-semibold transition-all"
             >
-              Finance View
+              Finance Mgr
+            </button>
+            <button
+              onClick={() => switchRole('SUPER_ADMIN')}
+              className="px-4 py-2 bg-purple-600/80 hover:bg-purple-600 text-white border border-purple-500/30 rounded-xl text-xs font-semibold transition-all"
+            >
+              Super Admin
             </button>
           </div>
+        </div>
+      </div>
+
+      {/* Quick Launchpad Action Toolbar */}
+      <div className="bg-white dark:bg-slate-800/90 border border-slate-200 dark:border-slate-700/80 rounded-2xl p-4 shadow-sm flex items-center justify-between gap-3 overflow-x-auto no-scrollbar">
+        <span className="text-xs font-bold text-slate-400 uppercase tracking-wider shrink-0 flex items-center gap-1.5">
+          <Sparkles className="w-4 h-4 text-indigo-500" /> Quick Launchpad
+        </span>
+        <div className="flex items-center gap-2 shrink-0">
+          <button 
+            onClick={() => onNavigate?.('procurement')} 
+            className="px-3 py-1.5 bg-indigo-50 dark:bg-indigo-950/60 hover:bg-indigo-100 text-indigo-600 dark:text-indigo-400 font-bold text-xs rounded-xl border border-indigo-200 dark:border-indigo-900 transition-all flex items-center gap-1.5"
+          >
+            <ShoppingBag className="w-3.5 h-3.5" /> Draft RFQ / PO
+          </button>
+          <button 
+            onClick={() => onNavigate?.('contracts')} 
+            className="px-3 py-1.5 bg-purple-50 dark:bg-purple-950/60 hover:bg-purple-100 text-purple-600 dark:text-purple-400 font-bold text-xs rounded-xl border border-purple-200 dark:border-purple-900 transition-all flex items-center gap-1.5"
+          >
+            <CheckCircle className="w-3.5 h-3.5" /> Execute Contract
+          </button>
+          <button 
+            onClick={() => onNavigate?.('logistics')} 
+            className="px-3 py-1.5 bg-emerald-50 dark:bg-emerald-950/60 hover:bg-emerald-100 text-emerald-600 dark:text-emerald-400 font-bold text-xs rounded-xl border border-emerald-200 dark:border-emerald-900 transition-all flex items-center gap-1.5"
+          >
+            <TrendingUp className="w-3.5 h-3.5" /> Supply Radar
+          </button>
+          <button 
+            onClick={() => onNavigate?.('workflows')} 
+            className="px-3 py-1.5 bg-amber-50 dark:bg-amber-950/60 hover:bg-amber-100 text-amber-600 dark:text-amber-400 font-bold text-xs rounded-xl border border-amber-200 dark:border-amber-900 transition-all flex items-center gap-1.5"
+          >
+            <AlertTriangle className="w-3.5 h-3.5" /> Rule Automations
+          </button>
         </div>
       </div>
 
