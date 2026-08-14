@@ -4,6 +4,7 @@ import {
   Sparkles, Plus, Search, CheckCircle, Download, ExternalLink, 
   PenTool, ShieldAlert, Clock, RefreshCw, Key, Shield
 } from 'lucide-react';
+import confetti from 'canvas-confetti';
 import { useProcurement } from '../context/ProcurementContext';
 import { formatCurrency } from '../utils/exportUtils';
 
@@ -170,6 +171,12 @@ export const ContractLifecycleView: React.FC = () => {
     setShowSignModal(false);
     setDigitalPin('');
     logActivity('SIGN_CONTRACT', 'SYSTEM', `Cryptographically signed contract ${selectedContract.contractNumber} by ${currentUser.name}`);
+    
+    confetti({
+      particleCount: 80,
+      spread: 80,
+      origin: { y: 0.6 }
+    });
   };
 
   const handleRunAiRedline = () => {
@@ -179,11 +186,17 @@ export const ContractLifecycleView: React.FC = () => {
       setAiAnalyzing(false);
       const updatedClauses = [
         ...selectedContract.keyClauses,
-        { title: 'Section 14: AI Redline Audit', content: 'Gemini 3.6 Flagged: Mandatory 30-day cure period for SLA breach added to prevent instant termination claims.', riskFlag: 'AI Clause Protection Active' }
+        { title: 'Section 14: AI Redline Audit', content: 'Gemini 3.7 Flagged: Mandatory 30-day cure period for SLA breach added to prevent instant termination claims.', riskFlag: 'AI Clause Protection Active' }
       ];
       setContracts(prev => prev.map(c => c.id === selectedContract.id ? { ...c, keyClauses: updatedClauses, aiRiskScore: Math.max(10, c.aiRiskScore - 15) } : c));
       setSelectedContract(prev => prev ? { ...prev, keyClauses: updatedClauses, aiRiskScore: Math.max(10, prev.aiRiskScore - 15) } : null);
       logActivity('AI_CONTRACT_REDLINE', 'AI', `Executed AI Clause Risk Audit on ${selectedContract.contractNumber}`);
+
+      confetti({
+        particleCount: 50,
+        spread: 60,
+        origin: { y: 0.7 }
+      });
     }, 1500);
   };
 

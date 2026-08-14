@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { ProcurementProvider } from './context/ProcurementContext';
 import { Header } from './components/Header';
 import { Sidebar, ActiveTab } from './components/Sidebar';
+import { LiveTelemetryTicker } from './components/LiveTelemetryTicker';
 import { DashboardView } from './components/DashboardView';
 import { VendorManagementView } from './components/VendorManagementView';
 import { ProcurementView } from './components/ProcurementView';
@@ -58,19 +59,32 @@ export default function App() {
 
   return (
     <ProcurementProvider>
-      <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-100 flex flex-col font-sans transition-colors duration-200">
+      <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-100 flex flex-col font-sans transition-colors duration-200 selection:bg-indigo-500 selection:text-white tech-dot-grid">
         
         {/* Main Header Bar */}
-        <Header activeTab={activeTab} setActiveTab={setActiveTab} collapsed={collapsed} setCollapsed={setCollapsed} />
+        <Header 
+          activeTab={activeTab} 
+          setActiveTab={setActiveTab} 
+          collapsed={collapsed} 
+          setCollapsed={setCollapsed} 
+        />
+
+        {/* Global Live Telemetry Marquee Ticker */}
+        <LiveTelemetryTicker />
 
         {/* Body Layout: Sidebar + Main Workspace */}
         <div className="flex-1 flex overflow-hidden">
           
           {/* Navigation Sidebar */}
-          <Sidebar activeTab={activeTab} setActiveTab={setActiveTab} collapsed={collapsed} setCollapsed={setCollapsed} />
+          <Sidebar 
+            activeTab={activeTab} 
+            setActiveTab={setActiveTab} 
+            collapsed={collapsed} 
+            setCollapsed={setCollapsed} 
+          />
 
           {/* Main Content Area */}
-          <main className="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8 max-w-7xl mx-auto w-full">
+          <main className="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8 max-w-7xl mx-auto w-full transition-all">
             {renderActiveView()}
           </main>
           
