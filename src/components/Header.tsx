@@ -9,6 +9,7 @@ import { useProcurement } from '../context/ProcurementContext';
 import { UserRole } from '../types';
 import { UserProfileModal } from './UserProfileModal';
 import { CommandPaletteModal } from './CommandPaletteModal';
+import { sound } from '../utils/soundUtils';
 
 interface HeaderProps {
   activeTab?: string;
@@ -35,6 +36,7 @@ export const Header: React.FC<HeaderProps> = ({
   const [showProfileModal, setShowProfileModal] = useState(false);
   const [showCommandPalette, setShowCommandPalette] = useState(false);
   const [activeNotificationFilter, setActiveNotificationFilter] = useState<'ALL' | 'CRITICAL' | 'UNREAD'>('ALL');
+  const [soundActive, setSoundActive] = useState(sound.isEnabled());
 
   // Listen for Cmd+K or Ctrl+K
   useEffect(() => {
@@ -234,9 +236,29 @@ export const Header: React.FC<HeaderProps> = ({
             )}
           </div>
 
+          {/* Sound FX Audio Toggle */}
+          <button
+            onClick={() => {
+              sound.toggleSound();
+              // force re-render
+              setSoundActive(sound.isEnabled());
+            }}
+            className={`p-2 rounded-xl transition-colors ${
+              soundActive
+                ? 'text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-950/60'
+                : 'text-slate-400 dark:text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800'
+            }`}
+            title={soundActive ? 'Sound Effects: ON (Click to Mute)' : 'Sound Effects: OFF (Click to Enable)'}
+          >
+            {soundActive ? <Volume2 className="w-4 h-4" /> : <VolumeX className="w-4 h-4" />}
+          </button>
+
           {/* Dark Mode Toggle */}
           <button
-            onClick={toggleTheme}
+            onClick={() => {
+              sound.playClick();
+              toggleTheme();
+            }}
             className="p-2 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-colors"
             title="Toggle Dark/Light Mode"
           >

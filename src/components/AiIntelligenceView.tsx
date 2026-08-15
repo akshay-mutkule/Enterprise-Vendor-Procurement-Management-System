@@ -4,7 +4,9 @@ import {
   Send, Bot, RefreshCw, CheckCircle, FileText, Handshake, 
   Copy, Check, ArrowRight, Play, Cpu
 } from 'lucide-react';
+import confetti from 'canvas-confetti';
 import { useProcurement } from '../context/ProcurementContext';
+import { sound } from '../utils/soundUtils';
 
 export const AiIntelligenceView: React.FC = () => {
   const { vendors, purchaseOrders, invoices, products, logActivity } = useProcurement();
@@ -27,6 +29,7 @@ export const AiIntelligenceView: React.FC = () => {
   const [inputMessage, setInputMessage] = useState('');
 
   const runAnalysis = async (type: string, customPayload?: any) => {
+    sound.playScan();
     setLoading(true);
     setAiResponse(null);
 
@@ -55,9 +58,12 @@ export const AiIntelligenceView: React.FC = () => {
       });
       const data = await res.json();
       setAiResponse(data);
+      sound.playSuccess();
+      confetti({ particleCount: 50, spread: 60, origin: { y: 0.6 } });
       logActivity('AI_ANALYSIS', 'ANALYTICS', `Executed Nexus AI module: ${type}`);
     } catch (e) {
       console.error(e);
+      sound.playAlert();
     } finally {
       setLoading(false);
     }
@@ -67,6 +73,7 @@ export const AiIntelligenceView: React.FC = () => {
     e.preventDefault();
     if (!inputMessage.trim()) return;
 
+    sound.playClick();
     const userMsg = inputMessage;
     setMessages(prev => [...prev, { sender: 'user', text: userMsg }]);
     setInputMessage('');
@@ -83,8 +90,10 @@ export const AiIntelligenceView: React.FC = () => {
       });
       const data = await res.json();
       setMessages(prev => [...prev, { sender: 'ai', text: data.summary || 'Analysis complete.' }]);
+      sound.playSuccess();
     } catch (err) {
       setMessages(prev => [...prev, { sender: 'ai', text: 'Error connecting to server AI model.' }]);
+      sound.playAlert();
     } finally {
       setLoading(false);
     }
