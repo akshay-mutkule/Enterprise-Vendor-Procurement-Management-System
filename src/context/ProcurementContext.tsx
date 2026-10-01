@@ -2,7 +2,8 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 import { 
   UserRole, User, Vendor, VendorStatus, Product, Warehouse, 
   PurchaseRequisition, RFQ, Quotation, PurchaseOrder, 
-  Invoice, Payment, AuditLog, SystemNotification, POStatus, RequisitionStatus, InvoiceStatus, VendorDocument 
+  Invoice, Payment, AuditLog, SystemNotification, POStatus, RequisitionStatus, InvoiceStatus, VendorDocument,
+  ToastItem, KraljicItem, KraljicQuadrant 
 } from '../types';
 import { getTranslation, Language } from '../utils/translations';
 import { 
@@ -55,6 +56,12 @@ interface ProcurementContextType {
   logActivity: (action: string, module: AuditLog['module'], details: string) => void;
   markNotificationRead: (id: string) => void;
   clearAllNotifications: () => void;
+  toasts: ToastItem[];
+  addToast: (title: string, message: string, type?: 'success' | 'warning' | 'error' | 'info') => void;
+  removeToast: (id: string) => void;
+  kraljicItems: KraljicItem[];
+  updateKraljicItem: (id: string, updates: Partial<KraljicItem>) => void;
+  awardReverseAuction: (rfqTitle: string, winningVendor: { id: string; name: string }, winningAmount: number, items?: any[]) => void;
 }
 
 const ProcurementContext = createContext<ProcurementContextType | undefined>(undefined);
@@ -97,6 +104,132 @@ export const ProcurementProvider: React.FC<{ children: React.ReactNode }> = ({ c
   const [payments, setPayments] = useState<Payment[]>(() => getInitial('procurement_payments', initialPayments));
   const [auditLogs, setAuditLogs] = useState<AuditLog[]>(() => getInitial('procurement_audit_logs', initialAuditLogs));
   const [notifications, setNotifications] = useState<SystemNotification[]>(() => getInitial('procurement_notifications', initialNotifications));
+  const [toasts, setToasts] = useState<ToastItem[]>([]);
+
+  const defaultKraljic: KraljicItem[] = [
+    {
+      id: 'k-1',
+      name: 'High-Precision Microcontrollers (STM32)',
+      category: 'Electronics',
+      vendorId: 'v-101',
+      vendorName: 'Apex Components Ltd',
+      profitImpact: 88,
+      supplyRisk: 82,
+      quadrant: 'STRATEGIC',
+      annualSpend: 340000,
+      singleSourceVulnerability: true,
+      marketComplexity: 'HIGH',
+      recommendedStrategy: 'Long-term partnership with guaranteed allocation and joint wafer reservation.',
+      leadTimeDays: 45
+    },
+    {
+      id: 'k-2',
+      name: 'Industrial Aluminum Extrusion Profiles',
+      category: 'Metals & Mining',
+      vendorId: 'v-102',
+      vendorName: 'Global Metals Inc',
+      profitImpact: 78,
+      supplyRisk: 34,
+      quadrant: 'LEVERAGE',
+      annualSpend: 215000,
+      singleSourceVulnerability: false,
+      marketComplexity: 'LOW',
+      recommendedStrategy: 'Competitive reverse bidding, multi-supplier volume splitting to lower price.',
+      leadTimeDays: 14
+    },
+    {
+      id: 'k-3',
+      name: 'Custom Optoelectronic LiDAR Sensors',
+      category: 'Optics & Sensing',
+      vendorId: 'v-103',
+      vendorName: 'MicroPrecision Technologies',
+      profitImpact: 35,
+      supplyRisk: 89,
+      quadrant: 'BOTTLENECK',
+      annualSpend: 62000,
+      singleSourceVulnerability: true,
+      marketComplexity: 'HIGH',
+      recommendedStrategy: 'Build 90-day buffer safety stock, search for standard footprint equivalents.',
+      leadTimeDays: 60
+    },
+    {
+      id: 'k-4',
+      name: 'Corrugated Packaging & Pallet Boxes',
+      category: 'Packaging',
+      vendorId: 'v-104',
+      vendorName: 'OmniPack Global',
+      profitImpact: 22,
+      supplyRisk: 18,
+      quadrant: 'NON_CRITICAL',
+      annualSpend: 42000,
+      singleSourceVulnerability: false,
+      marketComplexity: 'LOW',
+      recommendedStrategy: 'Catalog standardization, blanket purchase agreements, automated e-procurement.',
+      leadTimeDays: 5
+    },
+    {
+      id: 'k-5',
+      name: 'Lithium Polymer Battery Modules (48V)',
+      category: 'Energy Storage',
+      vendorId: 'v-105',
+      vendorName: 'VoltCore Energy Systems',
+      profitImpact: 84,
+      supplyRisk: 76,
+      quadrant: 'STRATEGIC',
+      annualSpend: 290000,
+      singleSourceVulnerability: true,
+      marketComplexity: 'HIGH',
+      recommendedStrategy: 'Direct cathode supply chain audit, dual-sourcing validation across EU/Asia.',
+      leadTimeDays: 38
+    },
+    {
+      id: 'k-6',
+      name: 'Standard Stainless Steel Fasteners & Bolts',
+      category: 'Hardware',
+      vendorId: 'v-106',
+      vendorName: 'Precision Fasteners Corp',
+      profitImpact: 18,
+      supplyRisk: 22,
+      quadrant: 'NON_CRITICAL',
+      annualSpend: 28000,
+      singleSourceVulnerability: false,
+      marketComplexity: 'LOW',
+      recommendedStrategy: 'Consolidated vendor managed inventory (VMI) with automated bin replenishment.',
+      leadTimeDays: 3
+    },
+    {
+      id: 'k-7',
+      name: 'Thermal Interface Conductive Pastes',
+      category: 'Chemicals',
+      vendorId: 'v-107',
+      vendorName: 'AeroTherm Solutions',
+      profitImpact: 32,
+      supplyRisk: 72,
+      quadrant: 'BOTTLENECK',
+      annualSpend: 48000,
+      singleSourceVulnerability: true,
+      marketComplexity: 'HIGH',
+      recommendedStrategy: 'Qualify secondary domestic compounder, increase inventory floor.',
+      leadTimeDays: 30
+    },
+    {
+      id: 'k-8',
+      name: 'Heavy Duty Polycarbonate Housings',
+      category: 'Plastics',
+      vendorId: 'v-108',
+      vendorName: 'PolyForm Dynamics',
+      profitImpact: 72,
+      supplyRisk: 28,
+      quadrant: 'LEVERAGE',
+      annualSpend: 180000,
+      singleSourceVulnerability: false,
+      marketComplexity: 'LOW',
+      recommendedStrategy: 'Volume aggregation across quarterly cycles, negotiate multi-year price locks.',
+      leadTimeDays: 12
+    }
+  ];
+
+  const [kraljicItems, setKraljicItems] = useState<KraljicItem[]>(() => getInitial('procurement_kraljic', defaultKraljic));
 
   // Sync state changes to localStorage automatically
   useEffect(() => { localStorage.setItem('procurement_vendors', JSON.stringify(vendors)); }, [vendors]);
@@ -110,6 +243,7 @@ export const ProcurementProvider: React.FC<{ children: React.ReactNode }> = ({ c
   useEffect(() => { localStorage.setItem('procurement_payments', JSON.stringify(payments)); }, [payments]);
   useEffect(() => { localStorage.setItem('procurement_audit_logs', JSON.stringify(auditLogs)); }, [auditLogs]);
   useEffect(() => { localStorage.setItem('procurement_notifications', JSON.stringify(notifications)); }, [notifications]);
+  useEffect(() => { localStorage.setItem('procurement_kraljic', JSON.stringify(kraljicItems)); }, [kraljicItems]);
   
   const [theme, setTheme] = useState<'light' | 'dark'>(() => {
     const saved = localStorage.getItem('theme');
@@ -405,6 +539,91 @@ export const ProcurementProvider: React.FC<{ children: React.ReactNode }> = ({ c
     setNotifications([]);
   };
 
+  const addToast = (title: string, message: string, type: 'success' | 'warning' | 'error' | 'info' = 'info') => {
+    const id = `toast-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`;
+    const newToast: ToastItem = {
+      id,
+      title,
+      message,
+      type,
+      timestamp: Date.now()
+    };
+    setToasts(prev => [newToast, ...prev].slice(0, 5));
+    setTimeout(() => {
+      setToasts(prev => prev.filter(t => t.id !== id));
+    }, 4500);
+  };
+
+  const removeToast = (id: string) => {
+    setToasts(prev => prev.filter(t => t.id !== id));
+  };
+
+  const updateKraljicItem = (id: string, updates: Partial<KraljicItem>) => {
+    setKraljicItems(prev => prev.map(item => {
+      if (item.id !== id) return item;
+      const updated = { ...item, ...updates };
+      let quadrant: KraljicQuadrant = updated.quadrant;
+      if (updates.profitImpact !== undefined || updates.supplyRisk !== undefined) {
+        const pHigh = updated.profitImpact >= 50;
+        const rHigh = updated.supplyRisk >= 50;
+        if (pHigh && rHigh) quadrant = 'STRATEGIC';
+        else if (!pHigh && rHigh) quadrant = 'BOTTLENECK';
+        else if (pHigh && !rHigh) quadrant = 'LEVERAGE';
+        else quadrant = 'NON_CRITICAL';
+      }
+      return { ...updated, quadrant };
+    }));
+    logActivity('UPDATE_KRALJIC', 'SYSTEM', `Updated strategic positioning for item ${id}`);
+    addToast('Strategic Portfolio Updated', 'Supplier risk coordinates updated in Kraljic portfolio.', 'success');
+  };
+
+  const awardReverseAuction = (
+    rfqTitle: string, 
+    winningVendor: { id: string; name: string }, 
+    winningAmount: number,
+    items?: any[]
+  ) => {
+    const poNumber = `PO-2026-${Math.floor(1000 + Math.random() * 9000)}`;
+    const newPO: PurchaseOrder = {
+      id: `po-${Date.now()}`,
+      poNumber,
+      vendorId: winningVendor.id,
+      vendorName: winningVendor.name,
+      items: items && items.length > 0 ? items : [
+        {
+          productName: rfqTitle,
+          quantity: 1,
+          unitPrice: winningAmount,
+          totalPrice: winningAmount
+        }
+      ],
+      subtotal: winningAmount * 0.82,
+      tax: winningAmount * 0.18,
+      totalAmount: winningAmount,
+      status: 'APPROVED',
+      issueDate: new Date().toISOString().substring(0, 10),
+      expectedDeliveryDate: new Date(Date.now() + 14 * 86400000).toISOString().substring(0, 10),
+      approvedBy: currentUser.name,
+      shippingAddress: 'Central Godown Warehouse 01, Sector 4, Silicon Valley Industrial Estate',
+      paymentTerms: 'Net 30 Days'
+    };
+
+    setPurchaseOrders(prev => [newPO, ...prev]);
+    logActivity('AWARD_REVERSE_AUCTION', 'PROCUREMENT', `Awarded e-Auction contract for "${rfqTitle}" to ${winningVendor.name} at $${winningAmount.toLocaleString()} (${poNumber})`);
+    
+    const newNotif: SystemNotification = {
+      id: `notif-${Date.now()}`,
+      title: 'e-Auction Contract Awarded',
+      message: `Contract for "${rfqTitle}" awarded to ${winningVendor.name}. Purchase order ${poNumber} automatically approved.`,
+      type: 'SUCCESS',
+      roleTarget: 'PROCUREMENT_MANAGER',
+      timestamp: new Date().toISOString(),
+      read: false
+    };
+    setNotifications(prev => [newNotif, ...prev]);
+    addToast('e-Auction Contract Awarded', `Purchase Order ${poNumber} issued to ${winningVendor.name}`, 'success');
+  };
+
   return (
     <ProcurementContext.Provider value={{
       currentRole,
@@ -448,7 +667,13 @@ export const ProcurementProvider: React.FC<{ children: React.ReactNode }> = ({ c
       updateUserProfile,
       logActivity,
       markNotificationRead,
-      clearAllNotifications
+      clearAllNotifications,
+      toasts,
+      addToast,
+      removeToast,
+      kraljicItems,
+      updateKraljicItem,
+      awardReverseAuction
     }}>
       {children}
     </ProcurementContext.Provider>

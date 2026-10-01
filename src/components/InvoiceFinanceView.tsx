@@ -7,14 +7,14 @@ import {
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { useProcurement } from '../context/ProcurementContext';
-import { formatCurrency } from '../utils/exportUtils';
+import { formatCurrency, exportToPDF } from '../utils/exportUtils';
 import { sound } from '../utils/soundUtils';
 import { Invoice } from '../types';
 
 export const InvoiceFinanceView: React.FC = () => {
   const { 
     invoices, purchaseOrders, vendors, uploadInvoice, 
-    verifyInvoice, processPayment, searchQuery, logActivity 
+    verifyInvoice, processPayment, searchQuery, logActivity, addToast 
   } = useProcurement();
 
   const [showUploadModal, setShowUploadModal] = useState(false);
@@ -359,7 +359,22 @@ export const InvoiceFinanceView: React.FC = () => {
                 <div className="flex gap-2">
                   <button
                     onClick={() => {
-                      alert(`Printing official Payment Voucher for ${selectedInvoice.invoiceNumber}`);
+                      exportToPDF(
+                        `Official Payment Voucher - ${selectedInvoice.invoiceNumber}`,
+                        ['Field', 'Detail'],
+                        [
+                          ['Invoice Reference', selectedInvoice.invoiceNumber],
+                          ['Associated PO', selectedInvoice.poNumber],
+                          ['Vendor Beneficiary', selectedInvoice.vendorName],
+                          ['Subtotal Amount', formatCurrency(selectedInvoice.subtotal)],
+                          ['Tax GSTIN / VAT', formatCurrency(selectedInvoice.taxAmount)],
+                          ['Total Disbursed', formatCurrency(selectedInvoice.totalAmount)],
+                          ['Match Verification', '4-Way Match Cleared (Tolerance within 0.0%)'],
+                          ['Voucher Issue Date', new Date().toLocaleDateString()]
+                        ],
+                        `Voucher_${selectedInvoice.invoiceNumber}`
+                      );
+                      addToast('Voucher Exported', `Payment voucher for ${selectedInvoice.invoiceNumber} downloaded.`, 'success');
                     }}
                     className="flex-1 py-2.5 bg-slate-800 hover:bg-slate-700 text-white font-bold text-xs rounded-xl border border-slate-700 flex items-center justify-center gap-1.5 transition-all"
                   >
@@ -367,7 +382,19 @@ export const InvoiceFinanceView: React.FC = () => {
                   </button>
                   <button
                     onClick={() => {
-                      alert(`Exporting tax audit bundle for ${selectedInvoice.invoiceNumber}`);
+                      exportToPDF(
+                        `Tax Compliance Audit Bundle - ${selectedInvoice.invoiceNumber}`,
+                        ['Audit Check', 'Status', 'Evidence Hash'],
+                        [
+                          ['Supplier GSTIN/VAT Verification', 'VALIDATED', 'SHA-256-8A7B9C'],
+                          ['Purchase Order Reconciliation', 'MATCHED (PO 100%)', 'PO-MATCH-CLEARED'],
+                          ['Goods Receipt Intake (GRN)', 'ACCEPTED (Warehouse 01)', 'GRN-VERIFIED-99.8%'],
+                          ['Quality Inspection Certificate', 'PASSED QA-LOT', 'QA-INSPECT-PASS'],
+                          ['Payment Terms Compliance', 'NET 30 VERIFIED', 'TREASURY-CLEAR']
+                        ],
+                        `Tax_Audit_Bundle_${selectedInvoice.invoiceNumber}`
+                      );
+                      addToast('Tax Bundle Downloaded', `Audit bundle for ${selectedInvoice.invoiceNumber} saved.`, 'info');
                     }}
                     className="flex-1 py-2.5 bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs rounded-xl shadow flex items-center justify-center gap-1.5 transition-all"
                   >
@@ -449,7 +476,11 @@ export const InvoiceFinanceView: React.FC = () => {
               onClick={() => {
                 sound.playSuccess();
                 confetti({ particleCount: 70, spread: 80, origin: { y: 0.7 } });
-                alert(`Dynamic Early Payment Campaign dispatched to ${invoices.length} vendors.`);
+                addToast(
+                  'Early Settlement Campaign Active',
+                  `Dynamic discount broadcast dispatched to ${invoices.length} vendors with early payment terms.`,
+                  'success'
+                );
               }}
               className="px-5 py-2.5 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-xl shadow-md transition-all hover:scale-105 whitespace-nowrap"
             >

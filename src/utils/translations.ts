@@ -4,6 +4,7 @@ export const translations: Record<Language, Record<string, string>> = {
   EN: {
     // Nav & Sidebar
     dashboard: "Dashboard",
+    strategic: "Strategic Sourcing & Kraljic",
     vendors: "Suppliers & Vendors",
     procurement: "Purchase & Orders",
     inventory: "Godown & Stock",

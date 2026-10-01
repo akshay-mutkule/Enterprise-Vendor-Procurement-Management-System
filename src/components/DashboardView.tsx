@@ -17,6 +17,7 @@ interface DashboardViewProps {
 }
 
 const InflationSimulator: React.FC<{ totalProcurementSpend: number }> = ({ totalProcurementSpend }) => {
+  const { addToast } = useProcurement();
   const [rawMaterialIncrease, setRawMaterialIncrease] = useState(8);
   const [freightSurge, setFreightSurge] = useState(5);
   const [fxFluctuation, setFxFluctuation] = useState(3);
@@ -30,7 +31,11 @@ const InflationSimulator: React.FC<{ totalProcurementSpend: number }> = ({ total
       spread: 70,
       origin: { y: 0.7 }
     });
-    alert(`Scenario Model Committed: Projected budget variance of +${formatCurrency(projectedIncrease)} successfully recorded in Executive Financial Ledger.`);
+    addToast(
+      'Scenario Model Committed',
+      `Projected budget variance of +${formatCurrency(projectedIncrease)} successfully recorded in Executive Financial Ledger.`,
+      'success'
+    );
   };
 
   return (

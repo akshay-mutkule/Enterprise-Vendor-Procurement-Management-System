@@ -2,13 +2,14 @@ import React, { useState } from 'react';
 import { 
   LayoutDashboard, Users, ShoppingBag, Package, FileText, 
   Sparkles, Bell, BarChart3, Terminal, ShieldAlert, ChevronLeft, ChevronRight,
-  FileCheck, Cpu, Globe2, Layers, CheckCircle2, Shield, Activity
+  FileCheck, Cpu, Globe2, Layers, CheckCircle2, Shield, Activity, Target
 } from 'lucide-react';
 import { useProcurement } from '../context/ProcurementContext';
 import { UserProfileModal } from './UserProfileModal';
 
 export type ActiveTab = 
   | 'dashboard' 
+  | 'strategic'
   | 'vendors' 
   | 'procurement' 
   | 'inventory' 
@@ -29,6 +30,21 @@ interface SidebarProps {
   setCollapsed: (collapsed: boolean) => void;
 }
 
+interface SidebarItem {
+  id: ActiveTab;
+  translationKey: any;
+  defaultLabel: string;
+  icon: React.ComponentType<{ className?: string }>;
+  roles: string[];
+  badge?: string;
+  count?: number;
+}
+
+interface SidebarSection {
+  title: string;
+  items: SidebarItem[];
+}
+
 export const Sidebar: React.FC<SidebarProps> = ({ 
   activeTab, setActiveTab, collapsed = false, setCollapsed 
 }) => {
@@ -37,7 +53,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
   const unreadAlerts = notifications.filter(n => !n.read).length;
 
-  const sections = [
+  const sections: SidebarSection[] = [
     {
       title: 'Core Procurement',
       items: [
@@ -51,6 +67,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
     {
       title: 'Governance & Operations',
       items: [
+        { id: 'strategic' as ActiveTab, translationKey: 'strategic' as any, defaultLabel: 'Strategic Sourcing & Kraljic', icon: Target, roles: ['SUPER_ADMIN', 'PROCUREMENT_MANAGER', 'FINANCE_MANAGER'] },
         { id: 'contracts' as ActiveTab, translationKey: 'contracts', defaultLabel: 'Contract CLM & Sign', icon: FileCheck, roles: ['SUPER_ADMIN', 'PROCUREMENT_MANAGER', 'FINANCE_MANAGER'] },
         { id: 'workflows' as ActiveTab, translationKey: 'workflows', defaultLabel: 'Workflow Rule Engine', icon: Cpu, roles: ['SUPER_ADMIN', 'PROCUREMENT_MANAGER', 'FINANCE_MANAGER', 'WAREHOUSE_MANAGER'] },
         { id: 'logistics' as ActiveTab, translationKey: 'logistics', defaultLabel: 'Global Supply Radar', icon: Globe2, roles: ['SUPER_ADMIN', 'PROCUREMENT_MANAGER', 'WAREHOUSE_MANAGER'] },

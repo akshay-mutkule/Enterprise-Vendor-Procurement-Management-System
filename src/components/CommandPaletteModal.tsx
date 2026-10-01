@@ -2,7 +2,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { 
   Search, X, LayoutDashboard, Users, ShoppingBag, Package, FileText, 
   FileCheck, Cpu, Globe2, Sparkles, BarChart3, Terminal, ShieldAlert, 
-  ArrowRight, Moon, Sun, Shield, Check, Command
+  ArrowRight, Moon, Sun, Shield, Check, Command, Target
 } from 'lucide-react';
 import { useProcurement } from '../context/ProcurementContext';
 import { ActiveTab } from './Sidebar';
@@ -57,6 +57,7 @@ export const CommandPaletteModal: React.FC<CommandPaletteModalProps> = ({
 
     const modules = [
       { id: 'dashboard', name: 'Executive Dashboard & Spend Analytics', category: 'Navigation', icon: LayoutDashboard, tab: 'dashboard' as ActiveTab },
+      { id: 'strategic', name: 'Strategic Sourcing & Kraljic Portfolio Matrix', category: 'Navigation', icon: Target, tab: 'strategic' as ActiveTab },
       { id: 'vendors', name: 'Vendor Lifecycle & Tier Management', category: 'Navigation', icon: Users, tab: 'vendors' as ActiveTab },
       { id: 'procurement', name: 'Procurement (Requisitions, RFQs, POs)', category: 'Navigation', icon: ShoppingBag, tab: 'procurement' as ActiveTab },
       { id: 'inventory', name: 'Inventory, Stock & Warehouse Godown', category: 'Navigation', icon: Package, tab: 'inventory' as ActiveTab },

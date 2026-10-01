@@ -17,6 +17,8 @@ import { ReportsView } from './components/ReportsView';
 import { DeveloperHubView } from './components/DeveloperHubView';
 import { AuditLogView } from './components/AuditLogView';
 import { AiCopilotDrawer } from './components/AiCopilotDrawer';
+import { StrategicSourcingView } from './components/StrategicSourcingView';
+import { ToastContainer } from './components/ToastContainer';
 
 export default function App() {
   const [activeTab, setActiveTab] = useState<ActiveTab>('dashboard');
@@ -26,6 +28,8 @@ export default function App() {
     switch (activeTab) {
       case 'dashboard':
         return <DashboardView onNavigate={(tab) => setActiveTab(tab as ActiveTab)} />;
+      case 'strategic':
+        return <StrategicSourcingView />;
       case 'vendors':
         return <VendorManagementView />;
       case 'procurement':
@@ -92,6 +96,9 @@ export default function App() {
 
         {/* Global AI Copilot Floating Assistant */}
         <AiCopilotDrawer onNavigate={(tab) => setActiveTab(tab as ActiveTab)} />
+
+        {/* Global In-App Toast Notification Center */}
+        <ToastContainer />
 
       </div>
     </ProcurementProvider>

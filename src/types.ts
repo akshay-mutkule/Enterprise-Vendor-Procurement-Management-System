@@ -267,3 +267,48 @@ export interface AIAnalysisResponse {
   score?: number;
   metrics?: Record<string, any>;
 }
+
+export type KraljicQuadrant = 'STRATEGIC' | 'BOTTLENECK' | 'LEVERAGE' | 'NON_CRITICAL';
+
+export interface KraljicItem {
+  id: string;
+  name: string;
+  category: string;
+  vendorId: string;
+  vendorName: string;
+  profitImpact: number; // 0 - 100
+  supplyRisk: number; // 0 - 100
+  quadrant: KraljicQuadrant;
+  annualSpend: number;
+  singleSourceVulnerability: boolean;
+  marketComplexity: 'HIGH' | 'MEDIUM' | 'LOW';
+  recommendedStrategy: string;
+  leadTimeDays: number;
+}
+
+export interface ReverseAuctionBid {
+  id: string;
+  vendorId: string;
+  vendorName: string;
+  bidAmount: number;
+  timestamp: string;
+  rank: number;
+  deliveryDays: number;
+  complianceRating: number;
+}
+
+export interface ScenarioParameters {
+  rawMaterialInflation: number;
+  freightTariffSurge: number;
+  fxVolatility: number;
+  leadTimeSlippageDays: number;
+  inventoryBufferMultiplier: number;
+}
+
+export interface ToastItem {
+  id: string;
+  title: string;
+  message: string;
+  type: 'success' | 'warning' | 'error' | 'info';
+  timestamp: number;
+}

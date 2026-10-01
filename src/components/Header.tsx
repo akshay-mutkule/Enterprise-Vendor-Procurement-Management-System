@@ -3,7 +3,7 @@ import {
   Search, Bell, Moon, Sun, Globe, Shield, User as UserIcon, 
   ChevronDown, CheckCircle, AlertTriangle, Info, X, Menu, LayoutDashboard,
   Users, ShoppingBag, Package, FileText, Sparkles, BarChart3, Terminal, ShieldAlert,
-  Command, Volume2, VolumeX, Check, Flame
+  Command, Volume2, VolumeX, Check, Flame, Target
 } from 'lucide-react';
 import { useProcurement } from '../context/ProcurementContext';
 import { UserRole } from '../types';
@@ -61,6 +61,7 @@ export const Header: React.FC<HeaderProps> = ({
 
   const quickNavTabs = [
     { id: 'dashboard', label: t('dashboard'), icon: LayoutDashboard },
+    { id: 'strategic', label: 'Strategic Sourcing', icon: Target },
     { id: 'vendors', label: t('vendors'), icon: Users },
     { id: 'procurement', label: t('procurement'), icon: ShoppingBag },
     { id: 'inventory', label: t('inventory'), icon: Package },

@@ -32,7 +32,7 @@ const initialWarehouseBays: WarehouseBay[] = [
 ];
 
 export const InventoryView: React.FC = () => {
-  const { products, warehouses, addProduct, updateStock, addWarehouse, searchQuery, logActivity } = useProcurement();
+  const { products, warehouses, addProduct, updateStock, addWarehouse, searchQuery, logActivity, addToast } = useProcurement();
 
   const [activeTab, setActiveTab] = useState<'PRODUCTS' | 'WAREHOUSE_BAYS' | 'SCANNER' | 'STOCK_MOVEMENT'>('PRODUCTS');
   const [showProductModal, setShowProductModal] = useState(false);
@@ -487,7 +487,7 @@ export const InventoryView: React.FC = () => {
                     sound.playSuccess();
                     updateStock(scanResult.id, 50, scanResult.warehouseId);
                     confetti({ particleCount: 50, spread: 60, origin: { y: 0.7 } });
-                    alert(`Received +50 units of ${scanResult.name}. Stock updated.`);
+                    addToast('Stock Received', `Ingested +50 units of ${scanResult.name} to warehouse buffer.`, 'success');
                   }}
                   className="w-full mt-4 py-3 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-xl text-xs shadow-md transition-all hover:scale-102"
                 >

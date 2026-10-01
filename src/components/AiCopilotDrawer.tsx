@@ -12,7 +12,7 @@ interface AiCopilotDrawerProps {
 }
 
 export const AiCopilotDrawer: React.FC<AiCopilotDrawerProps> = ({ onNavigate }) => {
-  const { vendors, purchaseOrders, requisitions, invoices, products, t } = useProcurement();
+  const { vendors, purchaseOrders, requisitions, invoices, products, t, addToast } = useProcurement();
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<Array<{ sender: 'user' | 'ai'; text: string; actions?: string[] }>>([
     { 
@@ -39,7 +39,7 @@ export const AiCopilotDrawer: React.FC<AiCopilotDrawerProps> = ({ onNavigate }) 
   // Speech Recognition setup
   const handleMicToggle = () => {
     if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
-      alert('Speech recognition is not supported in your browser.');
+      addToast('Audio Input Notice', 'Speech recognition is not supported in this browser.', 'warning');
       return;
     }
 
@@ -76,7 +76,7 @@ export const AiCopilotDrawer: React.FC<AiCopilotDrawerProps> = ({ onNavigate }) 
   // Speech Synthesis setup
   const handleSpeak = (text: string, index: number) => {
     if (!('speechSynthesis' in window)) {
-      alert('Speech synthesis is not supported in your browser.');
+      addToast('Audio Playback Notice', 'Speech synthesis is not supported in this browser.', 'warning');
       return;
     }
 

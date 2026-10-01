@@ -5,7 +5,7 @@ import {
 import { useProcurement } from '../context/ProcurementContext';
 
 export const NotificationsView: React.FC = () => {
-  const { notifications, markNotificationRead, clearAllNotifications, vendors } = useProcurement();
+  const { notifications, markNotificationRead, clearAllNotifications, vendors, addToast } = useProcurement();
 
   const [emailForm, setEmailForm] = useState({
     recipient: vendors[0]?.contactEmail || 'sales@apexcomponents.com',
@@ -29,7 +29,11 @@ export const NotificationsView: React.FC = () => {
       },
       ...prev
     ]);
-    alert(`Java Mail Sender simulated: Email successfully dispatched to ${emailForm.recipient}`);
+    addToast(
+      'Email Dispatched',
+      `Enterprise email notification successfully dispatched to ${emailForm.recipient}`,
+      'success'
+    );
   };
 
   return (

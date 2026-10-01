@@ -1,63 +1,87 @@
 import React, { useState, useEffect } from 'react';
 import { 
-  Activity, ShieldCheck, TrendingUp, Sparkles, Globe, 
-  ArrowUpRight, ArrowDownRight, Zap, RefreshCw, Layers
+  TrendingUp, Shield, Layers, Clock, AlertTriangle, 
+  ArrowUpRight, ArrowDownRight, RefreshCw, CheckCircle2 
 } from 'lucide-react';
 import { useProcurement } from '../context/ProcurementContext';
 import { formatCurrency } from '../utils/exportUtils';
 
 export const LiveTelemetryTicker: React.FC = () => {
-  const { purchaseOrders, vendors, products } = useProcurement();
-  const [tickerTime, setTickerTime] = useState(new Date().toLocaleTimeString());
+  const { purchaseOrders, requisitions, products, vendors } = useProcurement();
+  const [lastRefreshed, setLastRefreshed] = useState<string>(new Date().toLocaleTimeString());
+
+  const totalSpend = purchaseOrders.reduce((acc, po) => acc + po.totalAmount, 0);
+  const pendingPRCount = requisitions.filter(r => r.status === 'PENDING_APPROVAL').length;
+  const lowStockItems = products.filter(p => p.stockQuantity <= p.reorderLevel).length;
 
   useEffect(() => {
     const timer = setInterval(() => {
-      setTickerTime(new Date().toLocaleTimeString());
-    }, 1000);
+      setLastRefreshed(new Date().toLocaleTimeString());
+    }, 15000);
     return () => clearInterval(timer);
   }, []);
 
-  const totalSpend = purchaseOrders.reduce((acc, po) => acc + po.totalAmount, 0);
-  const lowStockCount = products.filter(p => p.stockQuantity <= p.reorderLevel).length;
-
-  const tickerItems = [
-    { label: 'NODE STATUS', value: 'Live 99.99%', icon: Activity, color: 'text-emerald-400 bg-emerald-950/60 border-emerald-800' },
-    { label: 'GEMINI 3.7 AI SHIELD', value: 'Active (0 Fraud Anomaly)', icon: ShieldCheck, color: 'text-indigo-400 bg-indigo-950/60 border-indigo-800' },
-    { label: 'ACTIVE PO VOLUME', value: `${purchaseOrders.length} Orders (${formatCurrency(totalSpend)})`, icon: Zap, color: 'text-purple-400 bg-purple-950/60 border-purple-800' },
-    { label: 'TIER-1 SUPPLIERS', value: `${vendors.length} Onboarded (Avg 4.6★)`, icon: Globe, color: 'text-blue-400 bg-blue-950/60 border-blue-800' },
-    { label: 'GODOWN CAPACITY', value: `${lowStockCount === 0 ? 'Optimal (100%)' : `${lowStockCount} Reorders Flagged`}`, icon: Layers, color: lowStockCount === 0 ? 'text-emerald-400 bg-emerald-950/60 border-emerald-800' : 'text-amber-400 bg-amber-950/60 border-amber-800' },
-    { label: 'FX USD/EUR', value: '€0.923 (+0.12%)', icon: TrendingUp, color: 'text-cyan-400 bg-cyan-950/60 border-cyan-800' },
-    { label: 'FX USD/INR', value: '₹84.15 (-0.04%)', icon: TrendingUp, color: 'text-amber-400 bg-amber-950/60 border-amber-800' },
-    { label: 'LATENCY', value: '12ms (Direct API)', icon: RefreshCw, color: 'text-emerald-400 bg-emerald-950/60 border-emerald-800' },
-  ];
-
   return (
-    <div className="bg-slate-950 border-y border-slate-800/90 text-slate-300 text-xs py-1.5 px-3 overflow-hidden select-none shadow-inner relative flex items-center">
-      {/* Fixed Left Tag */}
-      <div className="flex items-center gap-1.5 pr-3 mr-2 border-r border-slate-800 shrink-0 z-10 bg-slate-950 text-[10px] font-mono font-bold text-indigo-400 uppercase tracking-wider">
-        <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-        <span className="hidden sm:inline">LIVE TELEMETRY</span>
-        <span className="text-slate-500 font-normal">[{tickerTime}]</span>
+    <div className="bg-slate-900 border-b border-slate-800 text-slate-300 text-xs px-4 py-2 flex items-center justify-between select-none">
+      
+      {/* Left: Operational Indices with clean typographic separators */}
+      <div className="flex items-center gap-3 overflow-x-auto no-scrollbar whitespace-nowrap text-[11px]">
+        
+        <div className="flex items-center gap-1.5 font-semibold text-slate-200">
+          <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+          <span>Ledger Status: Nominal</span>
+        </div>
+
+        <span className="text-slate-600" aria-hidden="true">·</span>
+
+        <div className="flex items-center gap-1">
+          <span className="text-slate-400">Committed Spend:</span>
+          <span className="font-mono font-bold text-white tabular-nums">
+            {formatCurrency(totalSpend)}
+          </span>
+        </div>
+
+        <span className="text-slate-600" aria-hidden="true">·</span>
+
+        <div className="flex items-center gap-1">
+          <span className="text-slate-400">Requisitions Pending:</span>
+          <span className="font-mono font-bold text-amber-400 tabular-nums">
+            {pendingPRCount} review{pendingPRCount === 1 ? '' : 's'}
+          </span>
+        </div>
+
+        <span className="text-slate-600" aria-hidden="true">·</span>
+
+        <div className="flex items-center gap-1">
+          <span className="text-slate-400">Godown Alerts:</span>
+          <span className={`font-mono font-bold tabular-nums ${lowStockItems > 0 ? 'text-rose-400' : 'text-emerald-400'}`}>
+            {lowStockItems === 0 ? 'Optimal' : `${lowStockItems} low stock`}
+          </span>
+        </div>
+
+        <span className="text-slate-600" aria-hidden="true">·</span>
+
+        <div className="flex items-center gap-1">
+          <span className="text-slate-400">Delivery SLA:</span>
+          <span className="font-mono font-bold text-emerald-400 tabular-nums">96.4% on-time</span>
+        </div>
+
+        <span className="text-slate-600" aria-hidden="true">·</span>
+
+        <div className="flex items-center gap-2 font-mono text-[10px] text-slate-400">
+          <span>USD/EUR 0.923 (+0.08%)</span>
+          <span className="text-slate-600">/</span>
+          <span>USD/INR 84.15 (-0.02%)</span>
+        </div>
+
       </div>
 
-      {/* Marquee Container */}
-      <div className="flex-1 overflow-hidden relative">
-        <div className="flex items-center gap-6 whitespace-nowrap animate-ticker">
-          {[...tickerItems, ...tickerItems].map((item, idx) => {
-            const Icon = item.icon;
-            return (
-              <div 
-                key={idx} 
-                className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full border text-[11px] font-mono font-medium ${item.color} transition-all hover:scale-105 cursor-default`}
-              >
-                <Icon className="w-3 h-3" />
-                <span className="text-slate-400 text-[10px] uppercase font-bold">{item.label}:</span>
-                <span className="font-bold">{item.value}</span>
-              </div>
-            );
-          })}
-        </div>
+      {/* Right: Last sync timestamp */}
+      <div className="hidden md:flex items-center gap-2 text-[10px] font-mono text-slate-500 shrink-0 pl-4 border-l border-slate-800">
+        <Clock className="w-3 h-3 text-slate-400" />
+        <span>Synced {lastRefreshed}</span>
       </div>
+
     </div>
   );
 };

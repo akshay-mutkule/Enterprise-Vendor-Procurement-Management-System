@@ -9,7 +9,7 @@ import { useProcurement } from '../context/ProcurementContext';
 import { sound } from '../utils/soundUtils';
 
 export const AiIntelligenceView: React.FC = () => {
-  const { vendors, purchaseOrders, invoices, products, logActivity } = useProcurement();
+  const { vendors, purchaseOrders, invoices, products, logActivity, addToast } = useProcurement();
 
   const [activeTool, setActiveTool] = useState<'COPILOT' | 'RISK' | 'FRAUD' | 'TREND' | 'CONTRACT' | 'NEGOTIATION'>('COPILOT');
   const [loading, setLoading] = useState(false);
@@ -366,7 +366,11 @@ export const AiIntelligenceView: React.FC = () => {
               {/* Action Toolbar */}
               <div className="pt-2 flex justify-end gap-2">
                 <button
-                  onClick={() => alert('AI Recommendations logged to Executive Compliance Audit ledger!')}
+                  onClick={() => {
+                    sound.playSuccess();
+                    logActivity('LOG_AI_RECOMMENDATION', 'AI', 'Committed AI strategic recommendations to executive audit log');
+                    addToast('Action Recorded', 'AI Recommendations logged to Executive Compliance Audit ledger.', 'success');
+                  }}
                   className="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs rounded-xl shadow flex items-center gap-1.5"
                 >
                   <CheckCircle className="w-3.5 h-3.5" /> Log Action to Compliance Audit
