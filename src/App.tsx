@@ -63,7 +63,7 @@ export default function App() {
 
   return (
     <ProcurementProvider>
-      <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-100 flex flex-col font-sans transition-colors duration-200 selection:bg-indigo-500 selection:text-white tech-dot-grid">
+      <div className="min-h-screen bg-slate-50 text-slate-800 flex flex-col font-sans selection:bg-indigo-500 selection:text-white tech-dot-grid">
         
         {/* Main Header Bar */}
         <Header 

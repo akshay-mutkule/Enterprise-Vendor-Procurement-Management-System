@@ -245,10 +245,7 @@ export const ProcurementProvider: React.FC<{ children: React.ReactNode }> = ({ c
   useEffect(() => { localStorage.setItem('procurement_notifications', JSON.stringify(notifications)); }, [notifications]);
   useEffect(() => { localStorage.setItem('procurement_kraljic', JSON.stringify(kraljicItems)); }, [kraljicItems]);
   
-  const [theme, setTheme] = useState<'light' | 'dark'>(() => {
-    const saved = localStorage.getItem('theme');
-    return (saved === 'dark' || saved === 'light') ? saved : 'light';
-  });
+  const theme: 'light' | 'dark' = 'light';
   const [language, setLanguage] = useState<'EN' | 'ES' | 'FR' | 'DE' | 'HI'>(() => {
     const saved = localStorage.getItem('language');
     return (saved === 'EN' || saved === 'ES' || saved === 'FR' || saved === 'DE' || saved === 'HI') ? saved : 'EN';
@@ -259,20 +256,15 @@ export const ProcurementProvider: React.FC<{ children: React.ReactNode }> = ({ c
     localStorage.setItem('language', language);
   }, [language]);
 
+  // Permanently enforce light mode across the application
   useEffect(() => {
     const root = document.documentElement;
-    if (theme === 'dark') {
-      root.classList.add('dark');
-      document.body.classList.add('dark');
-      localStorage.setItem('theme', 'dark');
-    } else {
-      root.classList.remove('dark');
-      document.body.classList.remove('dark');
-      localStorage.setItem('theme', 'light');
-    }
-  }, [theme]);
+    root.classList.remove('dark');
+    document.body.classList.remove('dark');
+    localStorage.setItem('theme', 'light');
+  }, []);
 
-  const toggleTheme = () => setTheme(prev => prev === 'light' ? 'dark' : 'light');
+  const toggleTheme = () => {};
 
   const switchRole = (role: UserRole) => {
     setCurrentRole(role);

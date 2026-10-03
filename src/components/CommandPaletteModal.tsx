@@ -2,7 +2,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { 
   Search, X, LayoutDashboard, Users, ShoppingBag, Package, FileText, 
   FileCheck, Cpu, Globe2, Sparkles, BarChart3, Terminal, ShieldAlert, 
-  ArrowRight, Moon, Sun, Shield, Check, Command, Target
+  ArrowRight, Shield, Check, Command, Target
 } from 'lucide-react';
 import { useProcurement } from '../context/ProcurementContext';
 import { ActiveTab } from './Sidebar';
@@ -19,7 +19,7 @@ export const CommandPaletteModal: React.FC<CommandPaletteModalProps> = ({
 }) => {
   const { 
     vendors, products, purchaseOrders, invoices, 
-    theme, toggleTheme, currentRole, switchRole 
+    currentRole, switchRole 
   } = useProcurement();
 
   const [search, setSearch] = useState('');
@@ -100,13 +100,6 @@ export const CommandPaletteModal: React.FC<CommandPaletteModalProps> = ({
 
     const systemActions = [
       {
-        id: 'toggle-theme',
-        name: `Switch Theme to ${theme === 'dark' ? 'Light Mode ☀️' : 'Dark Mode 🌙'}`,
-        category: 'Quick Action',
-        icon: theme === 'dark' ? Sun : Moon,
-        action: () => { toggleTheme(); onClose(); }
-      },
-      {
         id: 'role-superadmin',
         name: 'Switch Role to Super Admin (Full Control)',
         category: 'Quick Action',
@@ -150,7 +143,7 @@ export const CommandPaletteModal: React.FC<CommandPaletteModalProps> = ({
       (item as any).subtext?.toLowerCase().includes(query)
     ).slice(0, 14);
 
-  }, [search, vendors, products, purchaseOrders, invoices, theme, toggleTheme, currentRole, switchRole, onNavigateTab, onClose]);
+  }, [search, vendors, products, purchaseOrders, invoices, currentRole, switchRole, onNavigateTab, onClose]);
 
   if (!isOpen) return null;
 

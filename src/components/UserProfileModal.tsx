@@ -34,7 +34,7 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({
 }) => {
   const { 
     currentUser, currentRole, switchRole, t, 
-    language, setLanguage, theme, toggleTheme,
+    language, setLanguage,
     updateUserAvatar, updateUserProfile 
   } = useProcurement();
 
@@ -270,16 +270,6 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({
                   <Sparkles className="w-4 h-4 text-indigo-600 dark:text-indigo-400" /> Account Settings & Interface Preferences
                 </h4>
                 <div className="flex flex-wrap items-center justify-between gap-3 pt-2">
-                  <div className="flex items-center gap-2">
-                    <span className="text-slate-600 dark:text-slate-300 font-medium">Theme Mode:</span>
-                    <button
-                      onClick={toggleTheme}
-                      className="px-3 py-1 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg font-bold text-slate-800 dark:text-slate-200 shadow-sm"
-                    >
-                      {theme === 'light' ? '☀️ Light Mode' : '🌙 Dark Mode'}
-                    </button>
-                  </div>
-
                   <div className="flex items-center gap-2">
                     <span className="text-slate-600 dark:text-slate-300 font-medium">System Language:</span>
                     <select

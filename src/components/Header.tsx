@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { 
-  Search, Bell, Moon, Sun, Globe, Shield, User as UserIcon, 
+  Search, Bell, Globe, Shield, User as UserIcon, 
   ChevronDown, CheckCircle, AlertTriangle, Info, X, Menu, LayoutDashboard,
   Users, ShoppingBag, Package, FileText, Sparkles, BarChart3, Terminal, ShieldAlert,
   Command, Volume2, VolumeX, Check, Flame, Target
@@ -24,7 +24,7 @@ export const Header: React.FC<HeaderProps> = ({
   activeTab, setActiveTab, collapsed, setCollapsed, mobileMenuOpen, setMobileMenuOpen 
 }) => {
   const { 
-    currentRole, currentUser, switchRole, theme, toggleTheme, 
+    currentRole, currentUser, switchRole, 
     language, setLanguage, searchQuery, setSearchQuery,
     notifications, markNotificationRead, clearAllNotifications, t 
   } = useProcurement();
@@ -252,18 +252,6 @@ export const Header: React.FC<HeaderProps> = ({
             title={soundActive ? 'Sound Effects: ON (Click to Mute)' : 'Sound Effects: OFF (Click to Enable)'}
           >
             {soundActive ? <Volume2 className="w-4 h-4" /> : <VolumeX className="w-4 h-4" />}
-          </button>
-
-          {/* Dark Mode Toggle */}
-          <button
-            onClick={() => {
-              sound.playClick();
-              toggleTheme();
-            }}
-            className="p-2 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-colors"
-            title="Toggle Dark/Light Mode"
-          >
-            {theme === 'light' ? <Moon className="w-4 h-4" /> : <Sun className="w-4 h-4 text-amber-400" />}
           </button>
 
           {/* Notifications Dropdown */}
