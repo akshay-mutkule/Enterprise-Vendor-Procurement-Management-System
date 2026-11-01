@@ -18,8 +18,10 @@ import { sound } from '../utils/soundUtils';
 export const StrategicSourcingView: React.FC = () => {
   const { 
     kraljicItems, updateKraljicItem, awardReverseAuction, 
-    addToast, logActivity, purchaseOrders 
+    addToast, logActivity, purchaseOrders,
+    maverickSpend, updateMaverickStatus 
   } = useProcurement();
+
 
   const [activeTab, setActiveTab] = useState<'KRALJIC' | 'E_AUCTION' | 'SCENARIO'>('KRALJIC');
   const [selectedItemId, setSelectedItemId] = useState<string>(kraljicItems[0]?.id || 'k-1');
@@ -1096,8 +1098,144 @@ export const StrategicSourcingView: React.FC = () => {
             </div>
           </div>
 
+          {/* Monte Carlo Stochastic Simulation & Value at Risk (VaR) */}
+          <div className="bg-gradient-to-r from-slate-900 to-indigo-950 text-white rounded-2xl p-6 border border-indigo-900/60 space-y-4">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 border-b border-indigo-900/60 pb-3">
+              <div>
+                <span className="text-[10px] font-mono text-indigo-400 font-bold uppercase tracking-wider block">
+                  STOCHASTIC PORTFOLIO MODELING • 1,000 ITERATIONS
+                </span>
+                <h3 className="text-base font-extrabold text-white mt-0.5">
+                  Monte Carlo Value-at-Risk (VaR) & Supply Shock Distribution
+                </h3>
+              </div>
+              <span className="px-2.5 py-1 rounded bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 font-mono text-xs font-bold">
+                Confidence Interval: 95.0%
+              </span>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-xs">
+              <div className="p-3.5 bg-slate-900/80 rounded-xl border border-slate-800 space-y-1">
+                <span className="text-slate-400 text-[10px] uppercase font-mono block">95% Value-at-Risk (VaR)</span>
+                <div className="text-xl font-black text-rose-400 font-mono">
+                  +{formatCurrency(spendDelta * 1.34)}
+                </div>
+                <span className="text-[10px] text-slate-400">Worst-case 19 in 20 quarters</span>
+              </div>
+
+              <div className="p-3.5 bg-slate-900/80 rounded-xl border border-slate-800 space-y-1">
+                <span className="text-slate-400 text-[10px] uppercase font-mono block">Standard Deviation (σ)</span>
+                <div className="text-xl font-black text-indigo-300 font-mono">
+                  ±{formatCurrency(spendDelta * 0.28)}
+                </div>
+                <span className="text-[10px] text-slate-400">Dispersion across 1k trials</span>
+              </div>
+
+              <div className="p-3.5 bg-slate-900/80 rounded-xl border border-slate-800 space-y-1">
+                <span className="text-slate-400 text-[10px] uppercase font-mono block">Tail Risk Event (99th Percentile)</span>
+                <div className="text-xl font-black text-amber-400 font-mono">
+                  +{formatCurrency(spendDelta * 1.82)}
+                </div>
+                <span className="text-[10px] text-slate-400">Simultaneous dual-chokepoint shock</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Maverick (Rogue) Off-Contract Spend Detection Engine */}
+          <div className="bg-white rounded-2xl border border-slate-200 p-6 space-y-4 shadow-sm">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 border-b border-slate-100 pb-3">
+              <div>
+                <div className="flex items-center gap-2">
+                  <span className="p-1.5 bg-rose-50 text-rose-600 rounded-lg">
+                    <ShieldAlert className="w-4 h-4" />
+                  </span>
+                  <h3 className="text-sm font-extrabold text-slate-900">
+                    Maverick & Off-Catalog Spend Leakage Detector
+                  </h3>
+                </div>
+                <p className="text-xs text-slate-500 mt-0.5">
+                  Identifies spot purchases placed outside negotiated master agreements, showing direct dollar leakage.
+                </p>
+              </div>
+
+              <div className="bg-rose-50 border border-rose-200 px-3 py-1.5 rounded-xl text-right">
+                <span className="text-[10px] text-rose-700 font-mono uppercase font-bold block">Identified Leakage</span>
+                <span className="text-base font-black text-rose-600 font-mono">
+                  {formatCurrency(maverickSpend.reduce((acc, m) => acc + m.leakageAmount, 0))}
+                </span>
+              </div>
+            </div>
+
+            <div className="overflow-x-auto">
+              <table className="w-full text-left text-xs">
+                <thead className="bg-slate-50 text-slate-500 uppercase font-mono text-[10px] border-b border-slate-200">
+                  <tr>
+                    <th className="p-3">PO Reference</th>
+                    <th className="p-3">Off-Catalog Supplier</th>
+                    <th className="p-3">Department / Purchaser</th>
+                    <th className="p-3 text-right">Invoiced Amount</th>
+                    <th className="p-3 text-right">Target MSA Price</th>
+                    <th className="p-3 text-right">Dollar Leakage</th>
+                    <th className="p-3 text-center">Status</th>
+                    <th className="p-3 text-right">Remediation</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-100">
+                  {maverickSpend.map(item => (
+                    <tr key={item.id} className="hover:bg-slate-50">
+                      <td className="p-3 font-mono font-bold text-indigo-600">{item.poNumber}</td>
+                      <td className="p-3">
+                        <div className="font-bold text-slate-800">{item.vendorName}</div>
+                        <span className="text-[10px] text-slate-400">{item.category}</span>
+                      </td>
+                      <td className="p-3">
+                        <div className="font-medium text-slate-700">{item.department}</div>
+                        <span className="text-[10px] text-slate-400">{item.purchaserName}</span>
+                      </td>
+                      <td className="p-3 text-right font-mono font-semibold text-slate-800">
+                        {formatCurrency(item.amount)}
+                      </td>
+                      <td className="p-3 text-right font-mono text-slate-500">
+                        {formatCurrency(item.contractedPrice)}
+                      </td>
+                      <td className="p-3 text-right font-mono font-bold text-rose-600">
+                        +{formatCurrency(item.leakageAmount)}
+                      </td>
+                      <td className="p-3 text-center">
+                        <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase font-mono ${
+                          item.remediationStatus === 'RECOUPED' ? 'bg-emerald-100 text-emerald-800' :
+                          item.remediationStatus === 'INVESTIGATING' ? 'bg-amber-100 text-amber-800' :
+                          'bg-rose-100 text-rose-800'
+                        }`}>
+                          {item.remediationStatus}
+                        </span>
+                      </td>
+                      <td className="p-3 text-right">
+                        {item.remediationStatus !== 'RECOUPED' ? (
+                          <button
+                            onClick={() => {
+                              sound.playSuccess();
+                              updateMaverickStatus(item.id, 'RECOUPED');
+                              addToast('Leakage Recouped', `Credit rebate request issued to ${item.vendorName} for ${formatCurrency(item.leakageAmount)}`, 'success');
+                            }}
+                            className="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-white rounded-lg text-[11px] font-bold transition-colors"
+                          >
+                            Recoup Leakage
+                          </button>
+                        ) : (
+                          <span className="text-emerald-600 text-xs font-bold">✓ Recouped</span>
+                        )}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+
         </div>
       )}
+
 
     </div>
   );

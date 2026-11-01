@@ -312,3 +312,63 @@ export interface ToastItem {
   type: 'success' | 'warning' | 'error' | 'info';
   timestamp: number;
 }
+
+export interface BidEvaluationWeights {
+  priceWeight: number; // e.g. 40
+  deliveryWeight: number; // e.g. 25
+  qualityWeight: number; // e.g. 20
+  esgWeight: number; // e.g. 15
+}
+
+export type ApprovalTier = 'TIER_1_MANAGER' | 'TIER_2_DIRECTOR' | 'TIER_3_VP' | 'TIER_4_CFO';
+
+export interface ApprovalRequest {
+  id: string;
+  entityType: 'PURCHASE_ORDER' | 'REQUISITION' | 'INVOICE_VARIANCE' | 'SOLE_SOURCE_WAIVER';
+  entityId: string;
+  referenceNumber: string;
+  title: string;
+  requesterName: string;
+  department: string;
+  amount: number;
+  submittedDate: string;
+  slaHoursRemaining: number;
+  tierRequired: ApprovalTier;
+  status: 'PENDING' | 'APPROVED' | 'REJECTED' | 'ESCALATED';
+  riskScore: number;
+  justification: string;
+  approvalHistory: {
+    step: string;
+    approver: string;
+    action: 'APPROVED' | 'REJECTED' | 'ESCALATED';
+    timestamp: string;
+    comments: string;
+  }[];
+}
+
+export interface ContractSLAMetric {
+  id: string;
+  contractId: string;
+  metricName: string;
+  targetValue: string;
+  actualValue: string;
+  unit: string;
+  status: 'COMPLIANT' | 'WARNING' | 'BREACHED';
+  penaltyAmount: number;
+  lastAudited: string;
+}
+
+export interface MaverickSpendItem {
+  id: string;
+  poNumber: string;
+  vendorName: string;
+  category: string;
+  amount: number;
+  contractedPrice: number;
+  leakageAmount: number;
+  department: string;
+  purchaserName: string;
+  detectedDate: string;
+  remediationStatus: 'OPEN' | 'INVESTIGATING' | 'RECOUPED' | 'WAIVED';
+}
+

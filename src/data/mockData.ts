@@ -1,8 +1,9 @@
 import { 
   User, Vendor, Product, Warehouse, PurchaseRequisition, 
   RFQ, Quotation, PurchaseOrder, Invoice, Payment, 
-  AuditLog, SystemNotification 
+  AuditLog, SystemNotification, ApprovalRequest, ContractSLAMetric, MaverickSpendItem 
 } from '../types';
+
 
 export const initialUsers: User[] = [
   {
@@ -555,3 +556,173 @@ export const initialNotifications: SystemNotification[] = [
     read: true
   }
 ];
+
+export const initialApprovalRequests: ApprovalRequest[] = [
+  {
+    id: 'appr-101',
+    entityType: 'PURCHASE_ORDER',
+    entityId: 'po-501',
+    referenceNumber: 'PO-2026-0081',
+    title: 'Q3 Batch Microcontrollers & Power Supplies',
+    requesterName: 'Arthur Pendelton',
+    department: 'Hardware Engineering',
+    amount: 61360.00,
+    submittedDate: '2026-07-28 09:30',
+    slaHoursRemaining: 6.5,
+    tierRequired: 'TIER_3_VP',
+    status: 'PENDING',
+    riskScore: 24,
+    justification: 'Critical hardware components required to meet Q3 product delivery timeline. Evaluated across 3 vendors; lowest total cost of ownership.',
+    approvalHistory: [
+      { step: 'Tier 1: Department Manager', approver: 'Arthur Pendelton', action: 'APPROVED', timestamp: '2026-07-28 09:45', comments: 'Budget verified under Engineering OPEX line.' },
+      { step: 'Tier 2: Procurement Director', approver: 'Marcus Sterling', action: 'APPROVED', timestamp: '2026-07-28 11:20', comments: 'Quotation matrix reviewed, Apex awarded.' }
+    ]
+  },
+  {
+    id: 'appr-102',
+    entityType: 'SOLE_SOURCE_WAIVER',
+    entityId: 'ssw-204',
+    referenceNumber: 'SSW-2026-0012',
+    title: 'Titanium Carbide CNC Precision Bits (Proprietary Spec)',
+    requesterName: 'Elena Rostova',
+    department: 'Advanced Manufacturing',
+    amount: 14200.00,
+    submittedDate: '2026-07-29 14:00',
+    slaHoursRemaining: 18.0,
+    tierRequired: 'TIER_2_DIRECTOR',
+    status: 'PENDING',
+    riskScore: 48,
+    justification: 'Proprietary tooling required for 5-axis CNC. Alternative tooling introduces 12% tolerance drift.',
+    approvalHistory: [
+      { step: 'Tier 1: Department Manager', approver: 'Elena Rostova', action: 'APPROVED', timestamp: '2026-07-29 14:15', comments: 'Technical necessity justified.' }
+    ]
+  },
+  {
+    id: 'appr-103',
+    entityType: 'INVOICE_VARIANCE',
+    entityId: 'inv-802',
+    referenceNumber: 'VAR-INV-8812',
+    title: 'Freight Surcharge Variance on Corrugated Crates',
+    requesterName: 'Sophia Chen',
+    department: 'Finance & Accounts',
+    amount: 1980.00,
+    submittedDate: '2026-07-29 16:30',
+    slaHoursRemaining: 2.2,
+    tierRequired: 'TIER_1_MANAGER',
+    status: 'PENDING',
+    riskScore: 32,
+    justification: 'Fuel surcharge spike of 4.2% applied by carrier during port congestion.',
+    approvalHistory: []
+  },
+  {
+    id: 'appr-104',
+    entityType: 'PURCHASE_ORDER',
+    entityId: 'po-504',
+    referenceNumber: 'PO-2026-0099',
+    title: 'Enterprise Server Rack Expansion - Data Godown',
+    requesterName: 'David K.',
+    department: 'Cloud Infrastructure',
+    amount: 340000.00,
+    submittedDate: '2026-07-27 10:00',
+    slaHoursRemaining: 44.0,
+    tierRequired: 'TIER_4_CFO',
+    status: 'PENDING',
+    riskScore: 19,
+    justification: 'Capex approval for multi-rack server cluster expansion required for AI model pipeline.',
+    approvalHistory: [
+      { step: 'Tier 1: Department Manager', approver: 'David K.', action: 'APPROVED', timestamp: '2026-07-27 10:30', comments: 'Capex project approved in board budget.' },
+      { step: 'Tier 2: Procurement Director', approver: 'Marcus Sterling', action: 'APPROVED', timestamp: '2026-07-27 14:10', comments: 'Volume discounting of 14% achieved.' },
+      { step: 'Tier 3: VP of Operations', approver: 'Eleanor Vance', action: 'APPROVED', timestamp: '2026-07-28 08:30', comments: 'Facility power & cooling envelope verified.' }
+    ]
+  }
+];
+
+export const initialSLAMetrics: ContractSLAMetric[] = [
+  {
+    id: 'sla-1',
+    contractId: 'cnt-101',
+    metricName: 'Delivery SLA Lead Time',
+    targetValue: '<= 7 Business Days',
+    actualValue: '5.2 Days',
+    unit: 'Days',
+    status: 'COMPLIANT',
+    penaltyAmount: 0,
+    lastAudited: '2026-07-28'
+  },
+  {
+    id: 'sla-2',
+    contractId: 'cnt-101',
+    metricName: 'Parts Defect Rate (PPM)',
+    targetValue: '<= 50 PPM',
+    actualValue: '28 PPM',
+    unit: 'PPM',
+    status: 'COMPLIANT',
+    penaltyAmount: 0,
+    lastAudited: '2026-07-28'
+  },
+  {
+    id: 'sla-3',
+    contractId: 'cnt-102',
+    metricName: 'Shipment On-Time Delivery Rate',
+    targetValue: '>= 95.0%',
+    actualValue: '88.4%',
+    unit: '%',
+    status: 'BREACHED',
+    penaltyAmount: 3850.00,
+    lastAudited: '2026-07-26'
+  },
+  {
+    id: 'sla-4',
+    contractId: 'cnt-102',
+    metricName: 'Defect Rate Tolerance',
+    targetValue: '<= 0.05%',
+    actualValue: '0.14%',
+    unit: '%',
+    status: 'WARNING',
+    penaltyAmount: 1400.00,
+    lastAudited: '2026-07-26'
+  }
+];
+
+export const initialMaverickSpend: MaverickSpendItem[] = [
+  {
+    id: 'mav-1',
+    poNumber: 'EXP-DIRECT-891',
+    vendorName: 'Spot Market Fasteners Inc',
+    category: 'Industrial Hardware',
+    amount: 14200.00,
+    contractedPrice: 11100.00,
+    leakageAmount: 3100.00,
+    department: 'Packaging & Warehouse Ops',
+    purchaserName: 'Elena Rostova',
+    detectedDate: '2026-07-27',
+    remediationStatus: 'OPEN'
+  },
+  {
+    id: 'mav-2',
+    poNumber: 'EXP-DIRECT-894',
+    vendorName: 'Direct Cable Depo',
+    category: 'Electronics & Microchips',
+    amount: 8750.00,
+    contractedPrice: 7200.00,
+    leakageAmount: 1550.00,
+    department: 'Hardware Engineering',
+    purchaserName: 'Arthur Pendelton',
+    detectedDate: '2026-07-28',
+    remediationStatus: 'INVESTIGATING'
+  },
+  {
+    id: 'mav-3',
+    poNumber: 'EXP-OFFCAT-102',
+    vendorName: 'Office Express Plus',
+    category: 'IT & Facilities',
+    amount: 6400.00,
+    contractedPrice: 5100.00,
+    leakageAmount: 1300.00,
+    department: 'Corporate Admin',
+    purchaserName: 'Sandra Miles',
+    detectedDate: '2026-07-25',
+    remediationStatus: 'RECOUPED'
+  }
+];
+

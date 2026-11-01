@@ -63,13 +63,18 @@ export const CommandPaletteModal: React.FC<CommandPaletteModalProps> = ({
       { id: 'inventory', name: 'Inventory, Stock & Warehouse Godown', category: 'Navigation', icon: Package, tab: 'inventory' as ActiveTab },
       { id: 'finance', name: 'Invoices, 3-Way Match & Payments', category: 'Navigation', icon: FileText, tab: 'finance' as ActiveTab },
       { id: 'contracts', name: 'Contract Lifecycle (CLM) & Digital Signatures', category: 'Navigation', icon: FileCheck, tab: 'contracts' as ActiveTab },
-      { id: 'workflows', name: 'Workflow Rule Engine & Automations', category: 'Navigation', icon: Cpu, tab: 'workflows' as ActiveTab },
+      { id: 'workflows', name: 'Workflow Rule Engine & Approval Action Queue', category: 'Navigation', icon: Cpu, tab: 'workflows' as ActiveTab },
       { id: 'logistics', name: 'Global Supply Disruption Radar', category: 'Navigation', icon: Globe2, tab: 'logistics' as ActiveTab },
+      { id: 'bid-matrix', name: 'Multi-Vendor Bid Comparison & Weighted Scoring Matrix', category: 'Procurement Tools', icon: Target, tab: 'procurement' as ActiveTab },
+      { id: 'doa-queue', name: 'Delegation of Authority (DoA) & Pending Approval Queue', category: 'Procurement Tools', icon: Cpu, tab: 'workflows' as ActiveTab },
+      { id: 'sla-radar', name: 'Vendor SLA Breach Radar & Penalty Clawback', category: 'Procurement Tools', icon: FileCheck, tab: 'contracts' as ActiveTab },
+      { id: 'monte-carlo', name: 'Monte Carlo Spend Risk & Maverick Leakage Detector', category: 'Procurement Tools', icon: BarChart3, tab: 'strategic' as ActiveTab },
       { id: 'ai', name: 'AI Risk Fraud Check & Predictive Models', category: 'Navigation', icon: Sparkles, tab: 'ai' as ActiveTab },
       { id: 'reports', name: 'Executive Reports & Statement Exports', category: 'Navigation', icon: BarChart3, tab: 'reports' as ActiveTab },
       { id: 'developer', name: 'Developer API & Architecture Hub', category: 'Navigation', icon: Terminal, tab: 'developer' as ActiveTab },
       { id: 'audit', name: 'Security Audit Trail Logs', category: 'Navigation', icon: ShieldAlert, tab: 'audit' as ActiveTab },
     ];
+
 
     const vendorItems = vendors.map(v => ({
       id: `v-${v.id}`,

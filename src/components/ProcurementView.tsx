@@ -6,6 +6,8 @@ import {
 import { useProcurement } from '../context/ProcurementContext';
 import { formatCurrency } from '../utils/exportUtils';
 import { PurchaseOrder, POStatus } from '../types';
+import { BidEvaluationMatrix } from './BidEvaluationMatrix';
+
 
 export const ProcurementView: React.FC = () => {
   const { 
@@ -19,6 +21,8 @@ export const ProcurementView: React.FC = () => {
   const [showRFQModal, setShowRFQModal] = useState(false);
   const [showQuoteModal, setShowQuoteModal] = useState(false);
   const [selectedRFQForQuote, setSelectedRFQForQuote] = useState<string>('');
+  const [quoteViewMode, setQuoteViewMode] = useState<'MATRIX' | 'CARDS'>('MATRIX');
+
 
   // Forms State
   const [prForm, setPrForm] = useState({
@@ -348,87 +352,126 @@ export const ProcurementView: React.FC = () => {
         </div>
       )}
 
-      {/* Subtab 3: Quotation Matrix & Price Comparison */}
+      {/* Subtab 3: Quotation Matrix & Weighted Bid Comparison */}
       {activeSubTab === 'QUOTES' && (
         <div className="space-y-6">
           
-          <div className="bg-gradient-to-r from-purple-900 to-indigo-950 text-white rounded-xl p-4 shadow-md flex items-center justify-between border border-purple-800">
-            <div className="flex items-center gap-3">
-              <Award className="w-6 h-6 text-amber-400" />
+          {/* Mode Switcher Banner */}
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 bg-white p-3 rounded-xl border border-slate-200 shadow-2xs">
+            <div className="flex items-center gap-2">
+              <Award className="w-5 h-5 text-indigo-600" />
               <div>
-                <h3 className="text-sm font-bold">Side-by-Side Multi-Vendor Price Comparison Matrix</h3>
-                <p className="text-xs text-purple-200">Evaluate bids with Gemini AI recommendation score, delivery SLA, and total price breakdown.</p>
+                <h3 className="text-xs font-bold text-slate-900">RFQ Bid Sourcing & Decision Intelligence</h3>
+                <p className="text-[11px] text-slate-500">Switch between the multi-attribute weighted scoring matrix and individual quotation dossier cards.</p>
               </div>
             </div>
-            {selectedRFQForQuote && (
+
+            <div className="flex items-center gap-2 bg-slate-100 p-1 rounded-xl border border-slate-200">
               <button
-                onClick={() => setSelectedRFQForQuote('')}
-                className="px-3 py-1 bg-white/10 hover:bg-white/20 text-white text-xs rounded-lg font-semibold flex items-center gap-1 backdrop-blur-sm"
+                onClick={() => setQuoteViewMode('MATRIX')}
+                className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 ${
+                  quoteViewMode === 'MATRIX' 
+                    ? 'bg-indigo-600 text-white shadow-sm' 
+                    : 'text-slate-600 hover:text-slate-900'
+                }`}
               >
-                Showing RFQ Filter <X className="w-3.5 h-3.5 ml-1" />
+                <Award className="w-3.5 h-3.5" /> Weighted Scoring Matrix
               </button>
-            )}
+              <button
+                onClick={() => setQuoteViewMode('CARDS')}
+                className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 ${
+                  quoteViewMode === 'CARDS' 
+                    ? 'bg-indigo-600 text-white shadow-sm' 
+                    : 'text-slate-600 hover:text-slate-900'
+                }`}
+              >
+                <FileText className="w-3.5 h-3.5" /> Quotation Cards ({filteredQuotations.length})
+              </button>
+            </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {filteredQuotations.map(quote => (
-              <div key={quote.id} className={`bg-white dark:bg-slate-800 rounded-xl border p-5 shadow-sm space-y-4 relative overflow-hidden ${quote.status === 'ACCEPTED' ? 'border-emerald-500 ring-2 ring-emerald-500/20' : 'border-slate-200 dark:border-slate-700'}`}>
-                
-                {quote.aiRecommendationScore && quote.aiRecommendationScore > 90 && (
-                  <div className="absolute top-0 right-0 bg-amber-400 text-slate-900 text-[10px] font-extrabold px-3 py-1 rounded-bl-xl shadow flex items-center gap-1">
-                    <Sparkles className="w-3 h-3" /> AI Best Recommendation ({quote.aiRecommendationScore}%)
-                  </div>
-                )}
-
-                <div className="flex items-start justify-between pr-24">
-                  <div>
-                    <h4 className="text-sm font-extrabold text-slate-900 dark:text-white">{quote.vendorName}</h4>
-                    <span className="text-[10px] font-mono text-slate-400">{quote.quoteNumber} • Submitted {quote.submittedAt}</span>
-                  </div>
+          {/* Conditional View Mode */}
+          {quoteViewMode === 'MATRIX' ? (
+            <BidEvaluationMatrix 
+              initialRfqId={selectedRFQForQuote} 
+              onAwardComplete={() => setActiveSubTab('PO')} 
+            />
+          ) : (
+            <div className="space-y-6">
+              {selectedRFQForQuote && (
+                <div className="flex items-center justify-between bg-indigo-50 border border-indigo-200 px-4 py-2 rounded-xl text-xs">
+                  <span className="font-semibold text-indigo-900">Filtering by RFQ: {selectedRFQForQuote}</span>
+                  <button
+                    onClick={() => setSelectedRFQForQuote('')}
+                    className="text-indigo-600 font-bold hover:underline flex items-center gap-1"
+                  >
+                    Clear Filter <X className="w-3.5 h-3.5" />
+                  </button>
                 </div>
+              )}
 
-                <div className="space-y-2 text-xs">
-                  <div className="flex justify-between p-2 bg-slate-50 dark:bg-slate-900/50 rounded">
-                    <span className="text-slate-500">Unit Price Offered:</span>
-                    <span className="font-bold text-slate-900 dark:text-white">{formatCurrency(quote.items[0]?.unitPrice || 0)}</span>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {filteredQuotations.map(quote => (
+                  <div key={quote.id} className={`bg-white rounded-xl border p-5 shadow-sm space-y-4 relative overflow-hidden ${quote.status === 'ACCEPTED' ? 'border-emerald-500 ring-2 ring-emerald-500/20' : 'border-slate-200'}`}>
+                    
+                    {quote.aiRecommendationScore && quote.aiRecommendationScore > 90 && (
+                      <div className="absolute top-0 right-0 bg-amber-400 text-slate-900 text-[10px] font-extrabold px-3 py-1 rounded-bl-xl shadow flex items-center gap-1">
+                        <Sparkles className="w-3 h-3" /> AI Best Recommendation ({quote.aiRecommendationScore}%)
+                      </div>
+                    )}
+
+                    <div className="flex items-start justify-between pr-24">
+                      <div>
+                        <h4 className="text-sm font-extrabold text-slate-900">{quote.vendorName}</h4>
+                        <span className="text-[10px] font-mono text-slate-400">{quote.quoteNumber} • Submitted {quote.submittedAt}</span>
+                      </div>
+                    </div>
+
+                    <div className="space-y-2 text-xs">
+                      <div className="flex justify-between p-2 bg-slate-50 rounded">
+                        <span className="text-slate-500">Unit Price Offered:</span>
+                        <span className="font-bold text-slate-900">{formatCurrency(quote.items[0]?.unitPrice || 0)}</span>
+                      </div>
+                      <div className="flex justify-between p-2 bg-slate-50 rounded">
+                        <span className="text-slate-500">Delivery SLA Window:</span>
+                        <span className="font-bold text-slate-900">{quote.deliveryTimeDays} Days</span>
+                      </div>
+                      <div className="flex justify-between p-2 bg-indigo-50/50 rounded border border-indigo-100">
+                        <span className="font-bold text-indigo-900">Total Price (Incl Tax):</span>
+                        <span className="font-extrabold text-indigo-600 text-sm">{formatCurrency(quote.totalAmount)}</span>
+                      </div>
+                    </div>
+
+                    {quote.aiNotes && (
+                      <p className="text-[11px] text-slate-600 italic bg-amber-50/50 p-2.5 rounded border border-amber-200/50">
+                        💡 <strong>Evaluation Note:</strong> {quote.aiNotes}
+                      </p>
+                    )}
+
+                    <div className="pt-2 flex items-center justify-end gap-2 border-t border-slate-100">
+                      {quote.status === 'SUBMITTED' ? (
+                        <button
+                          onClick={() => acceptQuotation(quote.id)}
+                          className="w-full py-2 bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs rounded-lg shadow transition-all flex items-center justify-center gap-2"
+                        >
+                          <Check className="w-4 h-4" /> Award RFQ & Auto-Generate PO
+                        </button>
+                      ) : (
+                        <span className="px-3 py-1 bg-emerald-100 text-emerald-700 font-bold text-xs rounded-full">
+                          ✓ Awarded & Converted to PO
+                        </span>
+                      )}
+                    </div>
+
                   </div>
-                  <div className="flex justify-between p-2 bg-slate-50 dark:bg-slate-900/50 rounded">
-                    <span className="text-slate-500">Delivery SLA Window:</span>
-                    <span className="font-bold text-slate-900 dark:text-white">{quote.deliveryTimeDays} Days</span>
-                  </div>
-                  <div className="flex justify-between p-2 bg-indigo-50/50 dark:bg-indigo-950/40 rounded border border-indigo-100 dark:border-indigo-900">
-                    <span className="font-bold text-indigo-900 dark:text-indigo-300">Total Price (Incl Tax):</span>
-                    <span className="font-extrabold text-indigo-600 dark:text-indigo-400 text-sm">{formatCurrency(quote.totalAmount)}</span>
-                  </div>
-                </div>
-
-                {quote.aiNotes && (
-                  <p className="text-[11px] text-slate-600 dark:text-slate-300 italic bg-amber-50/50 dark:bg-amber-950/20 p-2.5 rounded border border-amber-200/50">
-                    💡 <strong>AI Evaluation:</strong> {quote.aiNotes}
-                  </p>
-                )}
-
-                <div className="pt-2 flex items-center justify-end gap-2 border-t border-slate-100 dark:border-slate-700">
-                  {quote.status === 'SUBMITTED' ? (
-                    <button
-                      onClick={() => acceptQuotation(quote.id)}
-                      className="w-full py-2 bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs rounded-lg shadow transition-all flex items-center justify-center gap-2"
-                    >
-                      <Check className="w-4 h-4" /> Award RFQ & Auto-Generate PO
-                    </button>
-                  ) : (
-                    <span className="px-3 py-1 bg-emerald-100 text-emerald-700 font-bold text-xs rounded-full">
-                      ✓ Awarded & Converted to PO
-                    </span>
-                  )}
-                </div>
-
+                ))}
               </div>
-            ))}
-          </div>
+            </div>
+          )}
 
         </div>
       )}
+
 
       {/* Subtab 4: Purchase Orders */}
       {activeSubTab === 'PO' && (

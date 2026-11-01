@@ -3,15 +3,17 @@ import {
   UserRole, User, Vendor, VendorStatus, Product, Warehouse, 
   PurchaseRequisition, RFQ, Quotation, PurchaseOrder, 
   Invoice, Payment, AuditLog, SystemNotification, POStatus, RequisitionStatus, InvoiceStatus, VendorDocument,
-  ToastItem, KraljicItem, KraljicQuadrant 
+  ToastItem, KraljicItem, KraljicQuadrant, ApprovalRequest, ContractSLAMetric, MaverickSpendItem 
 } from '../types';
 import { getTranslation, Language } from '../utils/translations';
 import { 
   initialUsers, initialVendors, initialWarehouses, 
   initialProducts, initialRequisitions, initialRFQs, 
   initialQuotations, initialPurchaseOrders, initialInvoices, 
-  initialPayments, initialAuditLogs, initialNotifications 
+  initialPayments, initialAuditLogs, initialNotifications,
+  initialApprovalRequests, initialSLAMetrics, initialMaverickSpend
 } from '../data/mockData';
+
 
 interface ProcurementContextType {
   currentRole: UserRole;
@@ -62,7 +64,16 @@ interface ProcurementContextType {
   kraljicItems: KraljicItem[];
   updateKraljicItem: (id: string, updates: Partial<KraljicItem>) => void;
   awardReverseAuction: (rfqTitle: string, winningVendor: { id: string; name: string }, winningAmount: number, items?: any[]) => void;
+  approvalRequests: ApprovalRequest[];
+  approveRequest: (id: string, notes?: string) => void;
+  rejectRequest: (id: string, reason: string) => void;
+  escalateRequest: (id: string, reason: string) => void;
+  slaMetrics: ContractSLAMetric[];
+  claimSLAPenalty: (id: string) => void;
+  maverickSpend: MaverickSpendItem[];
+  updateMaverickStatus: (id: string, status: MaverickSpendItem['remediationStatus']) => void;
 }
+
 
 const ProcurementContext = createContext<ProcurementContextType | undefined>(undefined);
 
@@ -105,6 +116,10 @@ export const ProcurementProvider: React.FC<{ children: React.ReactNode }> = ({ c
   const [auditLogs, setAuditLogs] = useState<AuditLog[]>(() => getInitial('procurement_audit_logs', initialAuditLogs));
   const [notifications, setNotifications] = useState<SystemNotification[]>(() => getInitial('procurement_notifications', initialNotifications));
   const [toasts, setToasts] = useState<ToastItem[]>([]);
+  const [approvalRequests, setApprovalRequests] = useState<ApprovalRequest[]>(() => getInitial('procurement_approvals', initialApprovalRequests));
+  const [slaMetrics, setSlaMetrics] = useState<ContractSLAMetric[]>(() => getInitial('procurement_sla_metrics', initialSLAMetrics));
+  const [maverickSpend, setMaverickSpend] = useState<MaverickSpendItem[]>(() => getInitial('procurement_maverick_spend', initialMaverickSpend));
+
 
   const defaultKraljic: KraljicItem[] = [
     {
@@ -244,6 +259,10 @@ export const ProcurementProvider: React.FC<{ children: React.ReactNode }> = ({ c
   useEffect(() => { localStorage.setItem('procurement_audit_logs', JSON.stringify(auditLogs)); }, [auditLogs]);
   useEffect(() => { localStorage.setItem('procurement_notifications', JSON.stringify(notifications)); }, [notifications]);
   useEffect(() => { localStorage.setItem('procurement_kraljic', JSON.stringify(kraljicItems)); }, [kraljicItems]);
+  useEffect(() => { localStorage.setItem('procurement_approvals', JSON.stringify(approvalRequests)); }, [approvalRequests]);
+  useEffect(() => { localStorage.setItem('procurement_sla_metrics', JSON.stringify(slaMetrics)); }, [slaMetrics]);
+  useEffect(() => { localStorage.setItem('procurement_maverick_spend', JSON.stringify(maverickSpend)); }, [maverickSpend]);
+
   
   const theme: 'light' | 'dark' = 'light';
   const [language, setLanguage] = useState<'EN' | 'ES' | 'FR' | 'DE' | 'HI'>(() => {
@@ -616,6 +635,89 @@ export const ProcurementProvider: React.FC<{ children: React.ReactNode }> = ({ c
     addToast('e-Auction Contract Awarded', `Purchase Order ${poNumber} issued to ${winningVendor.name}`, 'success');
   };
 
+  const approveRequest = (id: string, notes?: string) => {
+    setApprovalRequests(prev => prev.map(req => {
+      if (req.id !== id) return req;
+      return {
+        ...req,
+        status: 'APPROVED',
+        approvalHistory: [
+          ...req.approvalHistory,
+          {
+            step: `${currentUser.role} Sign-Off`,
+            approver: currentUser.name,
+            action: 'APPROVED',
+            timestamp: new Date().toISOString().replace('T', ' ').substring(0, 16),
+            comments: notes || 'Executive authorization granted.'
+          }
+        ]
+      };
+    }));
+    logActivity('APPROVE_REQUEST', 'PROCUREMENT', `Approved request ${id} (${notes || 'Authorized'})`);
+    addToast('Approval Granted', `Request #${id} approved successfully and signed into ledger.`, 'success');
+  };
+
+  const rejectRequest = (id: string, reason: string) => {
+    setApprovalRequests(prev => prev.map(req => {
+      if (req.id !== id) return req;
+      return {
+        ...req,
+        status: 'REJECTED',
+        approvalHistory: [
+          ...req.approvalHistory,
+          {
+            step: `${currentUser.role} Rejection`,
+            approver: currentUser.name,
+            action: 'REJECTED',
+            timestamp: new Date().toISOString().replace('T', ' ').substring(0, 16),
+            comments: reason
+          }
+        ]
+      };
+    }));
+    logActivity('REJECT_REQUEST', 'PROCUREMENT', `Rejected request ${id} - Reason: ${reason}`);
+    addToast('Request Rejected', `Request #${id} rejected: ${reason}`, 'warning');
+  };
+
+  const escalateRequest = (id: string, reason: string) => {
+    setApprovalRequests(prev => prev.map(req => {
+      if (req.id !== id) return req;
+      const nextTier = req.tierRequired === 'TIER_1_MANAGER' ? 'TIER_2_DIRECTOR' :
+                       req.tierRequired === 'TIER_2_DIRECTOR' ? 'TIER_3_VP' : 'TIER_4_CFO';
+      return {
+        ...req,
+        tierRequired: nextTier,
+        status: 'ESCALATED',
+        approvalHistory: [
+          ...req.approvalHistory,
+          {
+            step: `Escalated to ${nextTier}`,
+            approver: currentUser.name,
+            action: 'ESCALATED',
+            timestamp: new Date().toISOString().replace('T', ' ').substring(0, 16),
+            comments: reason
+          }
+        ]
+      };
+    }));
+    logActivity('ESCALATE_REQUEST', 'PROCUREMENT', `Escalated request ${id}: ${reason}`);
+    addToast('Escalated to Senior Tier', `Request #${id} escalated for expedited executive review.`, 'info');
+  };
+
+  const claimSLAPenalty = (id: string) => {
+    const metric = slaMetrics.find(m => m.id === id);
+    if (!metric) return;
+    setSlaMetrics(prev => prev.map(m => m.id === id ? { ...m, status: 'COMPLIANT', penaltyAmount: 0 } : m));
+    logActivity('CLAIM_SLA_PENALTY', 'FINANCE', `Applied rebate credit note of $${metric.penaltyAmount.toFixed(2)} for ${metric.metricName}`);
+    addToast('SLA Rebate Claimed', `Credit note of $${metric.penaltyAmount.toFixed(2)} applied to vendor ledger.`, 'success');
+  };
+
+  const updateMaverickStatus = (id: string, status: MaverickSpendItem['remediationStatus']) => {
+    setMaverickSpend(prev => prev.map(m => m.id === id ? { ...m, remediationStatus: status } : m));
+    logActivity('UPDATE_MAVERICK_SPEND', 'FINANCE', `Updated maverick spend item ${id} to ${status}`);
+    addToast('Maverick Spend Updated', `Status updated to ${status}`, 'info');
+  };
+
   return (
     <ProcurementContext.Provider value={{
       currentRole,
@@ -665,11 +767,20 @@ export const ProcurementProvider: React.FC<{ children: React.ReactNode }> = ({ c
       removeToast,
       kraljicItems,
       updateKraljicItem,
-      awardReverseAuction
+      awardReverseAuction,
+      approvalRequests,
+      approveRequest,
+      rejectRequest,
+      escalateRequest,
+      slaMetrics,
+      claimSLAPenalty,
+      maverickSpend,
+      updateMaverickStatus
     }}>
       {children}
     </ProcurementContext.Provider>
   );
+
 };
 
 export const useProcurement = () => {
