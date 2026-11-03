@@ -10,6 +10,7 @@ import { useProcurement } from '../context/ProcurementContext';
 import { formatCurrency } from '../utils/exportUtils';
 import { sound } from '../utils/soundUtils';
 import { Product } from '../types';
+import { WarehouseGodownVisualizer } from './WarehouseGodownVisualizer';
 
 interface WarehouseBay {
   bayId: string;
@@ -34,7 +35,7 @@ const initialWarehouseBays: WarehouseBay[] = [
 export const InventoryView: React.FC = () => {
   const { products, warehouses, addProduct, updateStock, addWarehouse, searchQuery, logActivity, addToast } = useProcurement();
 
-  const [activeTab, setActiveTab] = useState<'PRODUCTS' | 'WAREHOUSE_BAYS' | 'SCANNER' | 'STOCK_MOVEMENT'>('PRODUCTS');
+  const [activeTab, setActiveTab] = useState<'PRODUCTS' | 'GODOWN_VISUALIZER' | 'WAREHOUSE_BAYS' | 'SCANNER' | 'STOCK_MOVEMENT'>('PRODUCTS');
   const [showProductModal, setShowProductModal] = useState(false);
   const [showWarehouseModal, setShowWarehouseModal] = useState(false);
   const [showStockModal, setShowStockModal] = useState(false);
@@ -169,6 +170,18 @@ export const InventoryView: React.FC = () => {
           Master SKU Catalog ({products.length})
         </button>
         <button
+          onClick={() => { sound.playClick(); setActiveTab('GODOWN_VISUALIZER'); }}
+          className={`px-4 py-2 text-xs font-bold rounded-xl transition-all flex items-center gap-1.5 ${
+            activeTab === 'GODOWN_VISUALIZER' 
+              ? 'bg-indigo-600 text-white shadow-sm shadow-indigo-600/30' 
+              : 'text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800'
+          }`}
+        >
+          <Layers className="w-3.5 h-3.5" />
+          2D Godown Rack & Bin Visualizer
+          <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
+        </button>
+        <button
           onClick={() => { sound.playClick(); setActiveTab('WAREHOUSE_BAYS'); }}
           className={`px-4 py-2 text-xs font-bold rounded-xl transition-all ${
             activeTab === 'WAREHOUSE_BAYS' 
@@ -176,7 +189,7 @@ export const InventoryView: React.FC = () => {
               : 'text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800'
           }`}
         >
-          2D/3D Godown Bay Matrix & Racks
+          Overview Bays & Facility Map
         </button>
         <button
           onClick={() => { sound.playClick(); setActiveTab('SCANNER'); }}
@@ -301,6 +314,10 @@ export const InventoryView: React.FC = () => {
             ) : null}
           </div>
         </div>
+      )}
+
+      {activeTab === 'GODOWN_VISUALIZER' && (
+        <WarehouseGodownVisualizer />
       )}
 
       {activeTab === 'WAREHOUSE_BAYS' && (

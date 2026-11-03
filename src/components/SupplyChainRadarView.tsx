@@ -8,6 +8,7 @@ import confetti from 'canvas-confetti';
 import { useProcurement } from '../context/ProcurementContext';
 import { sound } from '../utils/soundUtils';
 import { formatCurrency } from '../utils/exportUtils';
+import { RouteDisruptionSimulator } from './RouteDisruptionSimulator';
 
 interface SupplyNode {
   id: string;
@@ -219,7 +220,7 @@ export const SupplyChainRadarView: React.FC = () => {
     resilienceScore: number;
   } | null>(null);
   const [activeFilter, setActiveFilter] = useState<'ALL' | 'DISRUPTED' | 'OPTIMAL'>('ALL');
-  const [viewMode, setViewMode] = useState<'RADAR_MAP' | 'SHIPMENTS'>('RADAR_MAP');
+  const [viewMode, setViewMode] = useState<'RADAR_MAP' | 'SHIPMENTS' | 'MARITIME_SIMULATOR'>('RADAR_MAP');
 
   const filteredNodes = nodes.filter(n => {
     if (activeFilter === 'DISRUPTED') return n.status !== 'OPTIMAL';
@@ -299,17 +300,44 @@ export const SupplyChainRadarView: React.FC = () => {
 
           <div className="flex flex-wrap items-center gap-2">
             <button
-              onClick={() => setViewMode(viewMode === 'RADAR_MAP' ? 'SHIPMENTS' : 'RADAR_MAP')}
-              className="px-4 py-2.5 bg-slate-800/90 hover:bg-slate-700 text-white text-xs font-bold rounded-xl border border-slate-700 shadow flex items-center gap-2 transition-all hover:scale-102"
+              onClick={() => { sound.playClick(); setViewMode('RADAR_MAP'); }}
+              className={`px-3.5 py-2 text-xs font-bold rounded-xl border flex items-center gap-1.5 transition-all ${
+                viewMode === 'RADAR_MAP'
+                  ? 'bg-emerald-600 text-white border-emerald-500 shadow-md'
+                  : 'bg-slate-800/90 hover:bg-slate-700 text-slate-300 border-slate-700'
+              }`}
             >
-              {viewMode === 'RADAR_MAP' ? <Truck className="w-4 h-4 text-emerald-400" /> : <Globe2 className="w-4 h-4 text-emerald-400" />}
-              <span>{viewMode === 'RADAR_MAP' ? 'View Cargo Manifest' : 'View Geospatial Radar'}</span>
+              <Globe2 className="w-4 h-4 text-emerald-400" />
+              <span>Geospatial Radar</span>
+            </button>
+            <button
+              onClick={() => { sound.playClick(); setViewMode('MARITIME_SIMULATOR'); }}
+              className={`px-3.5 py-2 text-xs font-bold rounded-xl border flex items-center gap-1.5 transition-all ${
+                viewMode === 'MARITIME_SIMULATOR'
+                  ? 'bg-indigo-600 text-white border-indigo-500 shadow-md'
+                  : 'bg-slate-800/90 hover:bg-slate-700 text-slate-300 border-slate-700'
+              }`}
+            >
+              <Anchor className="w-4 h-4 text-indigo-400" />
+              <span>Maritime Digital Twin</span>
+              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
+            </button>
+            <button
+              onClick={() => { sound.playClick(); setViewMode('SHIPMENTS'); }}
+              className={`px-3.5 py-2 text-xs font-bold rounded-xl border flex items-center gap-1.5 transition-all ${
+                viewMode === 'SHIPMENTS'
+                  ? 'bg-emerald-600 text-white border-emerald-500 shadow-md'
+                  : 'bg-slate-800/90 hover:bg-slate-700 text-slate-300 border-slate-700'
+              }`}
+            >
+              <Truck className="w-4 h-4 text-emerald-400" />
+              <span>Cargo Manifest ({shipments.length})</span>
             </button>
             <button
               onClick={handleRefreshRadar}
-              className="px-4 py-2.5 bg-gradient-to-r from-emerald-600 to-emerald-500 hover:from-emerald-500 hover:to-emerald-400 text-white text-xs font-bold rounded-xl shadow-lg shadow-emerald-600/30 flex items-center gap-2 transition-all hover:scale-105"
+              className="px-3.5 py-2 bg-gradient-to-r from-emerald-600 to-emerald-500 hover:from-emerald-500 hover:to-emerald-400 text-white text-xs font-bold rounded-xl shadow-lg shadow-emerald-600/30 flex items-center gap-1.5 transition-all hover:scale-105"
             >
-              <RefreshCw className="w-4 h-4" /> Live Node Refresh
+              <RefreshCw className="w-4 h-4" /> Refresh
             </button>
           </div>
         </div>
@@ -676,7 +704,12 @@ export const SupplyChainRadarView: React.FC = () => {
             </div>
 
           </div>
+
+          {/* Integrated Maritime Disruption & Reroute Digital Twin Simulator */}
+          <RouteDisruptionSimulator />
         </>
+      ) : viewMode === 'MARITIME_SIMULATOR' ? (
+        <RouteDisruptionSimulator />
       ) : (
         /* Shipments & Manifest Table */
         <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-sm overflow-hidden animate-fadeIn">

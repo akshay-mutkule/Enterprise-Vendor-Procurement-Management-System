@@ -7,7 +7,8 @@ import { useProcurement } from '../context/ProcurementContext';
 import { formatCurrency } from '../utils/exportUtils';
 import { PurchaseOrder, POStatus } from '../types';
 import { BidEvaluationMatrix } from './BidEvaluationMatrix';
-
+import { ReverseAuctionArena } from './ReverseAuctionArena';
+import { LandedCostTcoCalculator } from './LandedCostTcoCalculator';
 
 export const ProcurementView: React.FC = () => {
   const { 
@@ -16,7 +17,7 @@ export const ProcurementView: React.FC = () => {
     acceptQuotation, updatePOStatus, searchQuery 
   } = useProcurement();
 
-  const [activeSubTab, setActiveSubTab] = useState<'PR' | 'RFQ' | 'QUOTES' | 'PO'>('PR');
+  const [activeSubTab, setActiveSubTab] = useState<'PR' | 'RFQ' | 'QUOTES' | 'PO' | 'AUCTION' | 'TCO'>('PR');
   const [showPRModal, setShowPRModal] = useState(false);
   const [showRFQModal, setShowRFQModal] = useState(false);
   const [showQuoteModal, setShowQuoteModal] = useState(false);
@@ -222,6 +223,19 @@ export const ProcurementView: React.FC = () => {
           className={`pb-3 text-xs font-bold border-b-2 transition-colors flex items-center gap-2 ${activeSubTab === 'PO' ? 'border-indigo-600 text-indigo-600 dark:text-indigo-400' : 'border-transparent text-slate-400 hover:text-slate-600'}`}
         >
           <span>4. Purchase Orders ({purchaseOrders.length})</span>
+        </button>
+        <button
+          onClick={() => setActiveSubTab('AUCTION')}
+          className={`pb-3 text-xs font-bold border-b-2 transition-colors flex items-center gap-1.5 ${activeSubTab === 'AUCTION' ? 'border-indigo-600 text-indigo-600 dark:text-indigo-400' : 'border-transparent text-slate-400 hover:text-slate-600'}`}
+        >
+          <span>5. Live e-Auction Arena</span>
+          <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
+        </button>
+        <button
+          onClick={() => setActiveSubTab('TCO')}
+          className={`pb-3 text-xs font-bold border-b-2 transition-colors flex items-center gap-2 ${activeSubTab === 'TCO' ? 'border-indigo-600 text-indigo-600 dark:text-indigo-400' : 'border-transparent text-slate-400 hover:text-slate-600'}`}
+        >
+          <span>6. Landed Cost & TCO Engine</span>
         </button>
       </div>
 
@@ -534,6 +548,20 @@ export const ProcurementView: React.FC = () => {
             </table>
           </div>
         </div>
+      )}
+
+      {/* Subtab 5: Live e-Auction Arena */}
+      {activeSubTab === 'AUCTION' && (
+        <ReverseAuctionArena 
+          onAwardPO={(poNum) => {
+            setActiveSubTab('PO');
+          }}
+        />
+      )}
+
+      {/* Subtab 6: Landed Cost & TCO Engine */}
+      {activeSubTab === 'TCO' && (
+        <LandedCostTcoCalculator />
       )}
 
       {/* Modal: Create PR */}

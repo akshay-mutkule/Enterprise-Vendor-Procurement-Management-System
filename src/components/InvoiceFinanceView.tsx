@@ -10,6 +10,7 @@ import { useProcurement } from '../context/ProcurementContext';
 import { formatCurrency, exportToPDF } from '../utils/exportUtils';
 import { sound } from '../utils/soundUtils';
 import { Invoice } from '../types';
+import { ForensicThreeWayMatchWorkbench } from './ForensicThreeWayMatchWorkbench';
 
 export const InvoiceFinanceView: React.FC = () => {
   const { 
@@ -21,7 +22,7 @@ export const InvoiceFinanceView: React.FC = () => {
   const [showPaymentModal, setShowPaymentModal] = useState(false);
   const [selectedInvoice, setSelectedInvoice] = useState<Invoice | null>(invoices[0] || null);
   const [showOcrInspector, setShowOcrInspector] = useState(false);
-  const [activeTab, setActiveTab] = useState<'INVOICES' | 'DISCOUNTING' | 'PAYMENT_RAILS'>('INVOICES');
+  const [activeTab, setActiveTab] = useState<'INVOICES' | 'THREE_WAY_MATCH' | 'DISCOUNTING'>('INVOICES');
 
   // Dynamic Discounting State
   const [selectedDiscountInvoice, setSelectedDiscountInvoice] = useState<Invoice>(invoices[0] || null);
@@ -186,6 +187,20 @@ export const InvoiceFinanceView: React.FC = () => {
           Invoice Master Ledger ({invoices.length})
         </button>
         <button
+          onClick={() => { sound.playClick(); setActiveTab('THREE_WAY_MATCH'); }}
+          className={`px-4 py-2 text-xs font-bold rounded-xl transition-all flex items-center gap-1.5 ${
+            activeTab === 'THREE_WAY_MATCH' 
+              ? 'bg-indigo-600 text-white shadow-sm shadow-indigo-600/30' 
+              : 'text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800'
+          }`}
+        >
+          <ShieldCheck className="w-3.5 h-3.5" />
+          Forensic 3-Way Reconciliation
+          <span className="px-1.5 py-0.2 rounded-full text-[9px] bg-rose-500 text-white font-mono font-black">
+            SOX 404
+          </span>
+        </button>
+        <button
           onClick={() => { sound.playClick(); setActiveTab('DISCOUNTING'); }}
           className={`px-4 py-2 text-xs font-bold rounded-xl transition-all ${
             activeTab === 'DISCOUNTING' 
@@ -262,17 +277,30 @@ export const InvoiceFinanceView: React.FC = () => {
                           </span>
                         </td>
                         <td className="p-3 text-right">
-                          {inv.status === 'PENDING_VERIFICATION' && (
+                          <div className="flex items-center justify-end gap-1.5">
                             <button
                               onClick={(e) => {
                                 e.stopPropagation();
-                                handleVerify(inv.id);
+                                sound.playClick();
+                                setSelectedInvoice(inv);
+                                setActiveTab('THREE_WAY_MATCH');
                               }}
-                              className="px-2.5 py-1 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg text-[11px] font-bold shadow-xs transition-all hover:scale-105"
+                              className="px-2 py-1 bg-indigo-50 hover:bg-indigo-100 dark:bg-indigo-950 dark:hover:bg-indigo-900 text-indigo-700 dark:text-indigo-300 rounded-lg text-[10px] font-bold border border-indigo-200 dark:border-indigo-800 transition-colors"
                             >
-                              Verify ↵
+                              3-Way Match
                             </button>
-                          )}
+                            {inv.status === 'PENDING_VERIFICATION' && (
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleVerify(inv.id);
+                                }}
+                                className="px-2.5 py-1 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg text-[11px] font-bold shadow-xs transition-all hover:scale-105"
+                              >
+                                Verify ↵
+                              </button>
+                            )}
+                          </div>
                         </td>
                       </tr>
                     );
@@ -411,6 +439,12 @@ export const InvoiceFinanceView: React.FC = () => {
           </div>
 
         </div>
+      ) : activeTab === 'THREE_WAY_MATCH' ? (
+        <ForensicThreeWayMatchWorkbench 
+          invoiceNumber={selectedInvoice?.invoiceNumber}
+          poNumber={selectedInvoice?.poNumber}
+          vendorName={selectedInvoice?.vendorName}
+        />
       ) : (
         /* Dynamic Early Payment Optimizer (2/10 Net 30) */
         <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-6 sm:p-8 shadow-sm space-y-6 animate-fadeIn">
